@@ -1,2 +1,2 @@
 # ckad
-Notes and the like for studying for the CKAD exam.
+Following along with the KodeKloud CKAD course, notes will be stored in the notes folder.
