@@ -133,13 +133,156 @@
 * A pod may have multiple containers inside it, but not the same container, 
   * ie 1 python image and 1 nginx image
   * Not 2 python images.
-* 
+* How to deploy pods:
+  * `kubectl run nginx --image nginx`
+  * List pods: `kubectl get pods`
 
+### Recap: Pods with YAML
 
+`pod_definition.yaml`:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+```
+To deploy the pod:
+```bash
+kubectl apply -f pod_definition.yaml
+```
 
+To get detailed information about the pod:
+```bash
+kubectl describe pod myapp-pod
+```
 
+### Recap: Demo - Creating pods with YAML
 
+### A Note on Editing Existing Pods
+* If given a pod definition file, edit that file and use it to create a new pod.
+* If you aren't give a pod definition file, you can extract the definition via:
+```bash
+kubectl get pod -o yaml > pod-definition.yaml
+```
+* Then, you can edit the file to make any changes, delete, and re-create the pod.
+* To modify properties on the pod, you can use the following command:
+```bash
+kubectl edit pod 
+```
+* Only this list of properties is editable:
+  * `spec.containers[*].image`
+  * `spec.initContainers[*].image`
+  * `spec.activeDeadlineSeconds`
+  * `spec.tolerations`
+  * `spec.terminationGracePeriodSeconds`
 
+### Replication Controller
+* Why do we need a Replication Controller?
+  * High Availability
+  * The Replication Controller lets us run multiple instances of a pod.
+  * It can also bring up a new pod in a single pod node when the existing pod fails.
+  * It ensures the specified number of pods are always running.
+* Load Balancing and Scaling
+  * This can be used to bring up more pods on a node, or additional pods across different nodes for scaling
+  * The Replication Controller spans across multiple nodes in the cluster
+  * Replication Controller vs. ReplicaSet
+    * Replication Controller is the older technology that's being replaced by ReplicaSet
+
+_rc-definition.yml:_
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  replicas: 3
+```
+```bash
+kubectl create -f rc-definition.yml
+```
+
+```bash
+kubectl get replicationcontroller
+```
+```bash
+kubectl get pods
+```
+
+_replicaset-definition.yml:_
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+  replicas: 3
+  selector:
+    matchLabels:
+      type: front-end
+```
+```bash
+kubectl create -f replicaset-definition.yml
+```
+```bash
+kubectl get replicaset
+```
+```bash
+kubectl get pods
+```
+
+* If we want to scale up to 6 replicas, we change to `replicas: 6` and then:
+```bash
+kubectl create -f replicaset-definition.yml
+```
+```bash
+kubectl scale --replicas=6 -f replicaset-definition.yml
+```
+(I think this last one wouldn't affect the yaml, and thus probably not ideal)
+```bash
+kubectl scale --replicas=6 replicaset myapp-replicaset
+```
+(This deletes all underlying pods as well)
+```bash
+kubectl delete replicaset myapp-replicaset
+```
+
+```bash
+kubectl replace -f replicaset-definition.yml
+```
 
 
 
