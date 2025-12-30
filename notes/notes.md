@@ -898,8 +898,8 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  APP_COLOR: blue
-  APP_MODE: prod
+  APP_COLOR: "blue"
+  APP_MODE: "prod"
 ```
 
 ```bash
@@ -911,8 +911,8 @@ kubectl create -f config-map.yaml
 #### app-config
 
 ```yaml
-APP_COLOR: blue
-APP_MODE: prod
+APP_COLOR: "blue"
+APP_MODE: "prod"
 ```
 
 #### mysql-config
@@ -944,8 +944,8 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  APP_COLOR: blue
-  APP_MODE: prod
+  APP_COLOR: "blue"
+  APP_MODE: "prod"
 ```
 
 ### pod-definition.yaml
@@ -960,7 +960,7 @@ spec:
     - name: simple-webapp-color
       image: simple-webapp-color
       ports:
-        containerPort: 8080
+        - containerPort: 8080
       envFrom:
         - configMapRef:
             name: app-config
@@ -1000,4 +1000,371 @@ volumes:
   - name: app-config-volume
     configMap:
       name: app-config
+```
+
+
+## Secrets
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DB_Host: "mysql"
+  DB_User: "root"
+  DB_Password: "paswrd"
+```
+
+Imperative:
+```bash
+kubectl create secret generic <secret-name> --from-literal=<key>=<value>
+```
+```bash
+kubectl create secret generic app-secret \
+  --from-literal=DB_Host=mysql
+  --from-literal=DB_User=root
+  --from-literal=DB_Password=paswrd
+```
+```bash
+kubectl create secret generic app-secret \
+  --from-file=app_secret.properties
+```
+
+
+Declarative:
+```bash
+kubectl create -f secret-data.yaml
+```
+
+#### secret-data.yaml:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+data:
+  DB_Host: mysql
+  DB_User: root
+  DB_Password: paswrd
+```
+The data should be encoded rather than putting the data in plaintext. This can be done by the following:
+```bash
+echo -n "mysql" | base64
+```
+That would change to the following:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+data:
+  DB_Host: bx1zcWw=
+  DB_User: cm9vdA==
+  DB_Password: cGFzd3Jk
+```
+To view secrets:
+```bash
+kubectl get secrets
+```
+```bash
+kubectl describe secrets
+```
+```bash
+kubectl get secret app-secret -o yaml
+```
+
+To decode the hashed values, you can do:
+```bash
+echo -n "bx1zcWw=" | base64 --decode
+```
+
+### Secrets in Pods
+#### pod-definition.yaml:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-webapp-color
+spec:
+  containers:
+    - name: simple-webapp-color
+      image: simple-webapp-color
+      ports:
+      - containerPort: 8080
+      envFrom:
+        - secretRef:
+            name: app-secret
+```
+#### secret-data.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+data:
+  DB_Host: bx1zcWw=
+  DB_User: cm9vdA==
+  DB_Password: cGFzd3Jk
+```
+
+```bash
+kubectl create -f pod-definition.yaml
+```
+
+### Types of Secrets in Pods
+ENV:
+```yaml
+envFrom:
+  - secretRef:
+      name: app-secret
+```
+Single ENV:
+```yaml
+env:
+  - name: DB_Password
+    valueFrom:
+      secretRefKey:
+        name: app-secret
+        key: DB_Password
+```
+Volume:
+```yaml
+volumes:
+- name: app-secret-volume
+  secret:
+    secretName: app-secret
+```
+```bash
+ls /opt/app-secret-volumes
+```
+Output:
+```aiignore
+DB_Host   DB_Password  DB_User
+```
+```bash
+cat /opt/app-secret-volumes/DB_Password
+```
+Output:
+```aiignore
+paswrd
+```
+
+## Encrypting Secret Data at Rest
+```yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+  - providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: <BASE 64 ENCODED SECRET>
+      - identity: {}
+```
+To make a Base 64 Key:
+```bash
+head -c 32 /dev/urandom | base64
+```
+
+## Docker Security
+### Security Contexts
+
+To run as User 1000 instead of root, you can do the following in the Pod's spec.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+spec:
+  securityContext:
+    runAsUser: 1000
+  containers:
+    - name: ubuntu
+      image: ubuntu
+      command: ["sleep", "3600"]
+```
+To do this at the container level it would look like this. 
+**NOTE: Capabilities are only supported at the container level and not the pod level.**
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+spec:
+  containers:
+    - name: ubuntu
+      image: ubuntu
+      command: ["sleep", "3600"]
+      securityContext:
+        runAsUser: 1000
+        capabilities:
+          add: ["MAC_ADMIN"]
+```
+
+## Resource Requirements
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    name: my-pod
+spec:
+  containers:
+    - name: my-pod
+      image: my-pod
+      ports:
+        - containerPort: 8080
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: 2
+        limits:
+          memory: "2Gi"
+          cpu: 2
+```
+CPU Measurement of "1 cpu":
+AWS: 1 AWS vCPU
+Google Cloud: 1 GCP Core
+Azure: 1 Azure Core
+Other: 1 Hyperthread
+
+For Memory:
+You can specify in Bytes w/ no label
+* 1 = 1 Byte
+* 1000 = 1K (1,000 Bytes)
+* 1G = 1 Gigabyte (1,000,000,000 Bytes)
+* 1M = 1 Megabyte (1,000,000 Bytes)
+* 1K = 1 Kilobyte (1,000 Bytes)
+* 1Gi = 1 Gibibyte (1,073,741,824 Bytes)
+* 1Mi = 1 Mebibyte (1,0478,576 Bytes)
+* 1Ki = 1 Kibibyte (1,024 Bytes)
+
+The OOM Error stands for Out of Memory and can occur because a pod can request more memory than is available. This will terminate the pod and throw an OOM error.
+* Requests are minimum set aside for a node, Limits are maximum available for a node.
+
+For CPU:
+By Default there are no limits on a pod/node and they can use as much resources as it wants.
+The ideal setup is setting requests without limits to prevent bottle-necking and to prevent
+unused CPU/memory. This way it will ask for a certain threshold but still use what it can
+without overrunning other nodes on a pod. It's important that all nodes have requests set
+though so they get the correct amount of minimum cpu/memory, otherwise other nodes might
+prevent them from working.
+
+For Memory: This won't work because if the memory of a pod is exceeded by the requests of its nodes
+it will terminate the pod. Not sure what the ideal setup for memory is.
+
+### LimitRanges:
+`limit-range-cpu.yaml:`
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-resource-constraint
+spec:
+  limits:
+  - default:
+      cpu: 500m
+    defaultRequest:
+      cpu: 500m
+    max:
+      cpu: "1"
+    min:
+      cpu: 100m
+    type: Container
+```
+`limit-range-memory.yaml:`
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: memory-resource-constraint
+spec:
+  limits:
+  - default:
+      memory: 1Gi
+    defaultRequest:
+      memory: 1Gi
+    max:
+      memory: 1Gi
+    min:
+      memory: 500Mi
+    type: Container
+```
+
+### ResourceQuota
+For Namespace-level Resource Quotas, we can use a ResourceQuota
+* This will make sure all pods don't exceed a given resource amount.
+
+`my-resource-quota.yaml`
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-resource-quota
+spec:
+  hard:
+    requests.cpu: 4
+    requests.memory: 4Gi
+    limits.cpu: 10
+    limits.memory: 10Gi
+```
+
+## Service Accounts
+There are 2 types of accounts in Kubernetes:
+* User Accounts (Admin, Developer, etc.)
+* Service Accounts (Users used by the system, applications, Prometheus, Jenkins, etc.)
+  * Service accounts use tokens to communicate between services, similar to a `curl` Bearer token.
+  * By default, there is a service account created named `default`
+  * The default account is automatically applied to all pods on the cluster
+  * The service account gets mounted as a projected volume within the pod, like a dynamic directory
+    * Located at `/var/run/secrets/kubernetes.io/serviceaccount`
+    * `kubectl exec -it my-kubernetes-dashboard ls /var/run/secrets/kubernetes.io/serviceaccount` will have files with the token for that service account.
+    * This default account has limitations, so if needed we create a new ServiceAccount
+
+```bash
+kubectl get serviceaccount
+```
+
+```bash
+kubectl describe serviceaccount default
+```
+
+```bash
+kubectl create serviceaccount dashboard-sa
+```
+`service-definition.yaml`
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dashboard-sa
+  namespace: default
+```
+
+To attach a service account to a pod:
+`my-pod.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: my-pod
+      image: my-pod
+  serviceAccountName: dashboard-sa
+```
+
+To Create a token:
+* By default, tokens are valid for 1 hour
+```bash
+kubectl create token dashboard-sa
+```
+```bash
+kubectl create token dashboard-sa --duration 2h
 ```
