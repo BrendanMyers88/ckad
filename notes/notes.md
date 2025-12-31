@@ -1368,3 +1368,162 @@ kubectl create token dashboard-sa
 ```bash
 kubectl create token dashboard-sa --duration 2h
 ```
+
+## Taints & Tolerations
+* How to restrict which pods are placed on which nodes
+* An analogy for Taints and Tolerations w/ a person and bugs
+  * Taints would be Bugspray in this instance
+  * Tolerations would be where a bug is either tolerant or intolerant to that bugspray, ie it may be intolerant if its a mosquito but tolerant if its a ladybug
+  * In Kubernetes, the person would be a Node and the bugs would be Pods
+  * If we want only a specific set of pods on a given node:
+    * First we apply a Taint to the Node in question.
+    * Then we apply a Toleration only to the Pods which we want to live on that node. This will prevent any unwanted pods on that node.
+    * ie Node 1 has a "blue" taint. Now we apply a "blue" toleration to pod D. This will prevent pods A-C from living on Node 1.
+      * Node 1 ("blue" taint): Pod D ("blue" tolerance)
+      * Node 2: Pod A, Pod C
+      * Node 3: Pod B
+  * Taints/Tolerations do not require a pod to be on a specific node. In the example above, Pod D ("blue" tolerance) could live on Node 2 or 3.
+
+#### To taint a node:
+```bash
+kubectl taint nodes node-name key=value:taint-effect
+```
+
+There are 3 Taint-Effects:
+* NoSchedule
+  * Pods will not be scheduled on the Node.
+* PreferNoSchedule
+  * System will try to avoid placing a pod on the tainted node, but it isn't guaranteed
+* NoExecute
+  * The system will not schedule new pods on the node, and existing pods on the node, if any, will be evicted if they don't tolerate the taint.
+
+### Example taint:
+```bash
+kubectl taint nodes node1 app=myapp:NoSchedule
+```
+
+### To add a toleration to a Node:
+```bash
+kubectl taint nodes node1 app=blue:NoSchedule
+```
+`pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+  tolerations:
+    - key: "app"
+      operator: "Equal"
+      value: "blue"
+      effect: "NoSchedule"
+```
+**NOTE:** The Toleration values must be in double-quotes
+
+The Master Node is automatically assigned a Taint to prevent pods from being deployed to the Master Node. This is a best-practice and shouldn't be overwritten.
+To see the Taint on the Master Node, you can run the following command:
+```bash
+kubectl describe node kubemaster | grep Taint
+```
+Output: `Taints: node-role.kubernetes.io/master:NoSchedule`
+
+## Node Selectors:
+* Imagine 3 nodes
+  * 1 Large Node
+  * 2 Small Nodes
+* A Node Selector can be used to make a pod only work on a specific Node.
+* This could be useful to make sure a heavy workload is only being run on the large Node
+* Node Selectors have limitations, ie "Don't place this pod on a Small node" or "Place this pod on a Large or Medium node" can't be done with Node Selectors.
+`pod-definition.yaml`
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: data-processor
+    image: data-processor
+  nodeSelector:
+    size: Large
+```
+**NOTE:** The "Large" label is a label pair set on a Node.
+
+#### To Label a Node:
+```bash
+kubectl label nodes node01 size=Large
+```
+
+## Node Affinity:
+* The primary purpose of Node Affinity is to ensure Pods are hosted on particular Nodes.
+  * ie, Large data-processing Pod is hosted on Node 1, assuming Node 1 is Large.
+  * Unlike Node Selectors, Node Affinity may be more specific about which Node(s) a Pod may be hosted on.
+
+This Definition would be equivalent to the NodeSelector in the `pod-definition.yaml` above, however it also has more specificity power if needed.
+`pod-definition.yaml`
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: data-processor
+    image: data-processor
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: size
+                operator: In
+                values:
+                - Large
+                - Medium
+```
+
+Alternately, you could use:
+```yaml
+  - key: size
+    operator: notIn
+    values:
+    - Small
+```
+
+Node Affinity Types:
+* The type of Node Affinity defines the behavior of the Scheduler with respect to Node Affinity and the stages of the lifecycle of the pod
+* Two types of Node Affinity:
+  * `requiredDuringSchedulingIgnoredDuringExecution`
+  * `preferredDuringSchedulingIgnoredDuringExecution`
+* There is a third planned type of Node Affinity, but it is not available:
+  * `requiredDuringSchedulingRequiredDuringExecution`
+
+## Taints and Tolerations vs. Node Affinity
+* We have 3 nodes and 3 pods in 3 separate colors; Red, Blue, and Green.
+* Additionally, we have other unlabeled pods and nodes
+  * Node 1: Blue (Blue Taint)
+  * Node 2: Red (Red Taint)
+  * Node 3: Green (Green Taint)
+  * Node 4: Unlabeled
+  * Node 5: Unlabeled
+  * Pod 1: Green (Green Toleration)
+  * Pod 2: Blue (Blue Toleration)
+  * Pod 3: Red (Red Toleration)
+  * Pod 4: Unlabeled
+  * Pod 5: Unlabeled
+* To solve this, we apply a taint to all colored Nodes and toleration to colored pods.
+  * Unfortunately, this does not require our tolerant pods to go to the respective Node. They can still go to unlabeled nodes
+* If we use NodeSelectors/Node Affinity:
+  * It will guarantee our colored pods end up on the colored nodes, however unlabeled pods could end up on our labeled nodes.
+* Finally, using both Taints/Tolerations **and** Node Affinity:
+  * First, we add taints and tolerations to the colored pods to prevent other pods from ending up in the tainted nodes
+  * Next we use NodeAffinity to prevent the colored pods from ending up in the unlabeled nodes.
+
+Tips and Tricks for the Exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
+
+# Kubernetes Multi-Container Pods
