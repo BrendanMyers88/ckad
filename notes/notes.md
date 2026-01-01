@@ -1002,8 +1002,8 @@ volumes:
       name: app-config
 ```
 
-
 ## Secrets
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -1016,27 +1016,31 @@ data:
 ```
 
 Imperative:
+
 ```bash
 kubectl create secret generic <secret-name> --from-literal=<key>=<value>
 ```
+
 ```bash
 kubectl create secret generic app-secret \
   --from-literal=DB_Host=mysql
   --from-literal=DB_User=root
   --from-literal=DB_Password=paswrd
 ```
+
 ```bash
 kubectl create secret generic app-secret \
   --from-file=app_secret.properties
 ```
 
-
 Declarative:
+
 ```bash
 kubectl create -f secret-data.yaml
 ```
 
 #### secret-data.yaml:
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -1047,11 +1051,15 @@ data:
   DB_User: root
   DB_Password: paswrd
 ```
+
 The data should be encoded rather than putting the data in plaintext. This can be done by the following:
+
 ```bash
 echo -n "mysql" | base64
 ```
+
 That would change to the following:
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -1062,24 +1070,31 @@ data:
   DB_User: cm9vdA==
   DB_Password: cGFzd3Jk
 ```
+
 To view secrets:
+
 ```bash
 kubectl get secrets
 ```
+
 ```bash
 kubectl describe secrets
 ```
+
 ```bash
 kubectl get secret app-secret -o yaml
 ```
 
 To decode the hashed values, you can do:
+
 ```bash
 echo -n "bx1zcWw=" | base64 --decode
 ```
 
 ### Secrets in Pods
+
 #### pod-definition.yaml:
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -1090,12 +1105,14 @@ spec:
     - name: simple-webapp-color
       image: simple-webapp-color
       ports:
-      - containerPort: 8080
+        - containerPort: 8080
       envFrom:
         - secretRef:
             name: app-secret
 ```
+
 #### secret-data.yaml
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -1112,13 +1129,17 @@ kubectl create -f pod-definition.yaml
 ```
 
 ### Types of Secrets in Pods
+
 ENV:
+
 ```yaml
 envFrom:
   - secretRef:
       name: app-secret
 ```
+
 Single ENV:
+
 ```yaml
 env:
   - name: DB_Password
@@ -1127,29 +1148,38 @@ env:
         name: app-secret
         key: DB_Password
 ```
+
 Volume:
+
 ```yaml
 volumes:
-- name: app-secret-volume
-  secret:
-    secretName: app-secret
+  - name: app-secret-volume
+    secret:
+      secretName: app-secret
 ```
+
 ```bash
 ls /opt/app-secret-volumes
 ```
+
 Output:
+
 ```aiignore
 DB_Host   DB_Password  DB_User
 ```
+
 ```bash
 cat /opt/app-secret-volumes/DB_Password
 ```
+
 Output:
+
 ```aiignore
 paswrd
 ```
 
 ## Encrypting Secret Data at Rest
+
 ```yaml
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
@@ -1161,17 +1191,21 @@ resources:
           keys:
             - name: key1
               secret: <BASE 64 ENCODED SECRET>
-      - identity: {}
+      - identity: { }
 ```
+
 To make a Base 64 Key:
+
 ```bash
 head -c 32 /dev/urandom | base64
 ```
 
 ## Docker Security
+
 ### Security Contexts
 
 To run as User 1000 instead of root, you can do the following in the Pod's spec.
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -1183,10 +1217,12 @@ spec:
   containers:
     - name: ubuntu
       image: ubuntu
-      command: ["sleep", "3600"]
+      command: [ "sleep", "3600" ]
 ```
-To do this at the container level it would look like this. 
+
+To do this at the container level it would look like this.
 **NOTE: Capabilities are only supported at the container level and not the pod level.**
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -1196,11 +1232,11 @@ spec:
   containers:
     - name: ubuntu
       image: ubuntu
-      command: ["sleep", "3600"]
+      command: [ "sleep", "3600" ]
       securityContext:
         runAsUser: 1000
         capabilities:
-          add: ["MAC_ADMIN"]
+          add: [ "MAC_ADMIN" ]
 ```
 
 ## Resource Requirements
@@ -1226,6 +1262,7 @@ spec:
           memory: "2Gi"
           cpu: 2
 ```
+
 CPU Measurement of "1 cpu":
 AWS: 1 AWS vCPU
 Google Cloud: 1 GCP Core
@@ -1234,6 +1271,7 @@ Other: 1 Hyperthread
 
 For Memory:
 You can specify in Bytes w/ no label
+
 * 1 = 1 Byte
 * 1000 = 1K (1,000 Bytes)
 * 1G = 1 Gigabyte (1,000,000,000 Bytes)
@@ -1243,7 +1281,9 @@ You can specify in Bytes w/ no label
 * 1Mi = 1 Mebibyte (1,0478,576 Bytes)
 * 1Ki = 1 Kibibyte (1,024 Bytes)
 
-The OOM Error stands for Out of Memory and can occur because a pod can request more memory than is available. This will terminate the pod and throw an OOM error.
+The OOM Error stands for Out of Memory and can occur because a pod can request more memory than is available. This will
+terminate the pod and throw an OOM error.
+
 * Requests are minimum set aside for a node, Limits are maximum available for a node.
 
 For CPU:
@@ -1258,7 +1298,9 @@ For Memory: This won't work because if the memory of a pod is exceeded by the re
 it will terminate the pod. Not sure what the ideal setup for memory is.
 
 ### LimitRanges:
+
 `limit-range-cpu.yaml:`
+
 ```yaml
 apiVersion: v1
 kind: LimitRange
@@ -1266,17 +1308,19 @@ metadata:
   name: cpu-resource-constraint
 spec:
   limits:
-  - default:
-      cpu: 500m
-    defaultRequest:
-      cpu: 500m
-    max:
-      cpu: "1"
-    min:
-      cpu: 100m
-    type: Container
+    - default:
+        cpu: 500m
+      defaultRequest:
+        cpu: 500m
+      max:
+        cpu: "1"
+      min:
+        cpu: 100m
+      type: Container
 ```
+
 `limit-range-memory.yaml:`
+
 ```yaml
 apiVersion: v1
 kind: LimitRange
@@ -1284,22 +1328,25 @@ metadata:
   name: memory-resource-constraint
 spec:
   limits:
-  - default:
-      memory: 1Gi
-    defaultRequest:
-      memory: 1Gi
-    max:
-      memory: 1Gi
-    min:
-      memory: 500Mi
-    type: Container
+    - default:
+        memory: 1Gi
+      defaultRequest:
+        memory: 1Gi
+      max:
+        memory: 1Gi
+      min:
+        memory: 500Mi
+      type: Container
 ```
 
 ### ResourceQuota
+
 For Namespace-level Resource Quotas, we can use a ResourceQuota
+
 * This will make sure all pods don't exceed a given resource amount.
 
 `my-resource-quota.yaml`
+
 ```yaml
 apiVersion: v1
 kind: ResourceQuota
@@ -1314,16 +1361,19 @@ spec:
 ```
 
 ## Service Accounts
+
 There are 2 types of accounts in Kubernetes:
+
 * User Accounts (Admin, Developer, etc.)
 * Service Accounts (Users used by the system, applications, Prometheus, Jenkins, etc.)
-  * Service accounts use tokens to communicate between services, similar to a `curl` Bearer token.
-  * By default, there is a service account created named `default`
-  * The default account is automatically applied to all pods on the cluster
-  * The service account gets mounted as a projected volume within the pod, like a dynamic directory
-    * Located at `/var/run/secrets/kubernetes.io/serviceaccount`
-    * `kubectl exec -it my-kubernetes-dashboard ls /var/run/secrets/kubernetes.io/serviceaccount` will have files with the token for that service account.
-    * This default account has limitations, so if needed we create a new ServiceAccount
+    * Service accounts use tokens to communicate between services, similar to a `curl` Bearer token.
+    * By default, there is a service account created named `default`
+    * The default account is automatically applied to all pods on the cluster
+    * The service account gets mounted as a projected volume within the pod, like a dynamic directory
+        * Located at `/var/run/secrets/kubernetes.io/serviceaccount`
+        * `kubectl exec -it my-kubernetes-dashboard ls /var/run/secrets/kubernetes.io/serviceaccount` will have files
+          with the token for that service account.
+        * This default account has limitations, so if needed we create a new ServiceAccount
 
 ```bash
 kubectl get serviceaccount
@@ -1336,7 +1386,9 @@ kubectl describe serviceaccount default
 ```bash
 kubectl create serviceaccount dashboard-sa
 ```
+
 `service-definition.yaml`
+
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -1361,51 +1413,65 @@ spec:
 ```
 
 To Create a token:
+
 * By default, tokens are valid for 1 hour
+
 ```bash
 kubectl create token dashboard-sa
 ```
+
 ```bash
 kubectl create token dashboard-sa --duration 2h
 ```
 
 ## Taints & Tolerations
+
 * How to restrict which pods are placed on which nodes
 * An analogy for Taints and Tolerations w/ a person and bugs
-  * Taints would be Bugspray in this instance
-  * Tolerations would be where a bug is either tolerant or intolerant to that bugspray, ie it may be intolerant if its a mosquito but tolerant if its a ladybug
-  * In Kubernetes, the person would be a Node and the bugs would be Pods
-  * If we want only a specific set of pods on a given node:
-    * First we apply a Taint to the Node in question.
-    * Then we apply a Toleration only to the Pods which we want to live on that node. This will prevent any unwanted pods on that node.
-    * ie Node 1 has a "blue" taint. Now we apply a "blue" toleration to pod D. This will prevent pods A-C from living on Node 1.
-      * Node 1 ("blue" taint): Pod D ("blue" tolerance)
-      * Node 2: Pod A, Pod C
-      * Node 3: Pod B
-  * Taints/Tolerations do not require a pod to be on a specific node. In the example above, Pod D ("blue" tolerance) could live on Node 2 or 3.
+    * Taints would be Bugspray in this instance
+    * Tolerations would be where a bug is either tolerant or intolerant to that bugspray, ie it may be intolerant if its
+      a mosquito but tolerant if its a ladybug
+    * In Kubernetes, the person would be a Node and the bugs would be Pods
+    * If we want only a specific set of pods on a given node:
+        * First we apply a Taint to the Node in question.
+        * Then we apply a Toleration only to the Pods which we want to live on that node. This will prevent any unwanted
+          pods on that node.
+        * ie Node 1 has a "blue" taint. Now we apply a "blue" toleration to pod D. This will prevent pods A-C from
+          living on Node 1.
+            * Node 1 ("blue" taint): Pod D ("blue" tolerance)
+            * Node 2: Pod A, Pod C
+            * Node 3: Pod B
+    * Taints/Tolerations do not require a pod to be on a specific node. In the example above, Pod D ("blue" tolerance)
+      could live on Node 2 or 3.
 
 #### To taint a node:
+
 ```bash
 kubectl taint nodes node-name key=value:taint-effect
 ```
 
 There are 3 Taint-Effects:
+
 * NoSchedule
-  * Pods will not be scheduled on the Node.
+    * Pods will not be scheduled on the Node.
 * PreferNoSchedule
-  * System will try to avoid placing a pod on the tainted node, but it isn't guaranteed
+    * System will try to avoid placing a pod on the tainted node, but it isn't guaranteed
 * NoExecute
-  * The system will not schedule new pods on the node, and existing pods on the node, if any, will be evicted if they don't tolerate the taint.
+    * The system will not schedule new pods on the node, and existing pods on the node, if any, will be evicted if they
+      don't tolerate the taint.
 
 ### Example taint:
+
 ```bash
 kubectl taint nodes node1 app=myapp:NoSchedule
 ```
 
 ### To add a toleration to a Node:
+
 ```bash
 kubectl taint nodes node1 app=blue:NoSchedule
 ```
+
 `pod-definition.yaml`
 
 ```yaml
@@ -1415,31 +1481,38 @@ metadata:
   name: my-pod
 spec:
   containers:
-  - name: nginx-container
-    image: nginx
+    - name: nginx-container
+      image: nginx
   tolerations:
     - key: "app"
       operator: "Equal"
       value: "blue"
       effect: "NoSchedule"
 ```
+
 **NOTE:** The Toleration values must be in double-quotes
 
-The Master Node is automatically assigned a Taint to prevent pods from being deployed to the Master Node. This is a best-practice and shouldn't be overwritten.
+The Master Node is automatically assigned a Taint to prevent pods from being deployed to the Master Node. This is a
+best-practice and shouldn't be overwritten.
 To see the Taint on the Master Node, you can run the following command:
+
 ```bash
 kubectl describe node kubemaster | grep Taint
 ```
+
 Output: `Taints: node-role.kubernetes.io/master:NoSchedule`
 
 ## Node Selectors:
+
 * Imagine 3 nodes
-  * 1 Large Node
-  * 2 Small Nodes
+    * 1 Large Node
+    * 2 Small Nodes
 * A Node Selector can be used to make a pod only work on a specific Node.
 * This could be useful to make sure a heavy workload is only being run on the large Node
-* Node Selectors have limitations, ie "Don't place this pod on a Small node" or "Place this pod on a Large or Medium node" can't be done with Node Selectors.
-`pod-definition.yaml`
+* Node Selectors have limitations, ie "Don't place this pod on a Small node" or "Place this pod on a Large or Medium
+  node" can't be done with Node Selectors.
+  `pod-definition.yaml`
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -1447,25 +1520,30 @@ metadata:
   name: my-pod
 spec:
   containers:
-  - name: data-processor
-    image: data-processor
+    - name: data-processor
+      image: data-processor
   nodeSelector:
     size: Large
 ```
+
 **NOTE:** The "Large" label is a label pair set on a Node.
 
 #### To Label a Node:
+
 ```bash
 kubectl label nodes node01 size=Large
 ```
 
 ## Node Affinity:
-* The primary purpose of Node Affinity is to ensure Pods are hosted on particular Nodes.
-  * ie, Large data-processing Pod is hosted on Node 1, assuming Node 1 is Large.
-  * Unlike Node Selectors, Node Affinity may be more specific about which Node(s) a Pod may be hosted on.
 
-This Definition would be equivalent to the NodeSelector in the `pod-definition.yaml` above, however it also has more specificity power if needed.
+* The primary purpose of Node Affinity is to ensure Pods are hosted on particular Nodes.
+    * ie, Large data-processing Pod is hosted on Node 1, assuming Node 1 is Large.
+    * Unlike Node Selectors, Node Affinity may be more specific about which Node(s) a Pod may be hosted on.
+
+This Definition would be equivalent to the NodeSelector in the `pod-definition.yaml` above, however it also has more
+specificity power if needed.
 `pod-definition.yaml`
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -1473,8 +1551,8 @@ metadata:
   name: my-pod
 spec:
   containers:
-  - name: data-processor
-    image: data-processor
+    - name: data-processor
+      image: data-processor
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -1483,47 +1561,734 @@ spec:
               - key: size
                 operator: In
                 values:
-                - Large
-                - Medium
+                  - Large
+                  - Medium
 ```
 
 Alternately, you could use:
+
 ```yaml
   - key: size
     operator: notIn
     values:
-    - Small
+      - Small
 ```
 
 Node Affinity Types:
-* The type of Node Affinity defines the behavior of the Scheduler with respect to Node Affinity and the stages of the lifecycle of the pod
+
+* The type of Node Affinity defines the behavior of the Scheduler with respect to Node Affinity and the stages of the
+  lifecycle of the pod
 * Two types of Node Affinity:
-  * `requiredDuringSchedulingIgnoredDuringExecution`
-  * `preferredDuringSchedulingIgnoredDuringExecution`
+    * `requiredDuringSchedulingIgnoredDuringExecution`
+    * `preferredDuringSchedulingIgnoredDuringExecution`
 * There is a third planned type of Node Affinity, but it is not available:
-  * `requiredDuringSchedulingRequiredDuringExecution`
+    * `requiredDuringSchedulingRequiredDuringExecution`
 
 ## Taints and Tolerations vs. Node Affinity
+
 * We have 3 nodes and 3 pods in 3 separate colors; Red, Blue, and Green.
 * Additionally, we have other unlabeled pods and nodes
-  * Node 1: Blue (Blue Taint)
-  * Node 2: Red (Red Taint)
-  * Node 3: Green (Green Taint)
-  * Node 4: Unlabeled
-  * Node 5: Unlabeled
-  * Pod 1: Green (Green Toleration)
-  * Pod 2: Blue (Blue Toleration)
-  * Pod 3: Red (Red Toleration)
-  * Pod 4: Unlabeled
-  * Pod 5: Unlabeled
+    * Node 1: Blue (Blue Taint)
+    * Node 2: Red (Red Taint)
+    * Node 3: Green (Green Taint)
+    * Node 4: Unlabeled
+    * Node 5: Unlabeled
+    * Pod 1: Green (Green Toleration)
+    * Pod 2: Blue (Blue Toleration)
+    * Pod 3: Red (Red Toleration)
+    * Pod 4: Unlabeled
+    * Pod 5: Unlabeled
 * To solve this, we apply a taint to all colored Nodes and toleration to colored pods.
-  * Unfortunately, this does not require our tolerant pods to go to the respective Node. They can still go to unlabeled nodes
+    * Unfortunately, this does not require our tolerant pods to go to the respective Node. They can still go to
+      unlabeled nodes
 * If we use NodeSelectors/Node Affinity:
-  * It will guarantee our colored pods end up on the colored nodes, however unlabeled pods could end up on our labeled nodes.
+    * It will guarantee our colored pods end up on the colored nodes, however unlabeled pods could end up on our labeled
+      nodes.
 * Finally, using both Taints/Tolerations **and** Node Affinity:
-  * First, we add taints and tolerations to the colored pods to prevent other pods from ending up in the tainted nodes
-  * Next we use NodeAffinity to prevent the colored pods from ending up in the unlabeled nodes.
+    * First, we add taints and tolerations to the colored pods to prevent other pods from ending up in the tainted nodes
+    * Next we use NodeAffinity to prevent the colored pods from ending up in the unlabeled nodes.
 
-Tips and Tricks for the Exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
+Tips and Tricks for the
+Exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
 
 # Kubernetes Multi-Container Pods
+
+* Microservices allow for decoupling of services rather than having a monolith, however at times resources may need to
+  work together (ie Webserver and Main App) and be deployed together.
+* Multi-container pods share the following:
+    * Lifecycle
+    * Network
+    * Storage
+
+#### To create a multi-container pod:
+
+`multi-container-pod.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+    - name: web-app
+      image: web-app
+      ports:
+        - containerPort: 8080
+    - name: main-app
+      image: main-app
+```
+
+### Design Patterns
+
+* Co-located Containers
+    * As described above with the main-app and web-app sharing resources
+    * 2+ containers running in a pod
+    * Limitation: You cannot define which container starts first in co-located containers
+* Regular Init Containers
+    * Used when intiialization steps need to occur before the main application itself
+    * ie, an application that waits for the database to be ready before starting the main application
+    * The init container starts its job, ends its job, and then the main application starts
+    * Once all init containers complete, the regular containers are all started simultaneously.
+* Sidecar Containers
+    * Setup similar to a Regular Init container where the Sidecar starts first, followed by the main application
+    * Unlike the Init Container, the Sidecar container continues to do its job for the lifecycle of the pod
+    * The sidecar ends after the main app ends
+    * Sidecar Starts > Main App Starts > Main App Ends > Sidecar Ends
+    * Different from Co-located Containers, Sidecar containers allow the ability to set the startup order of the
+      applications
+
+`co-located-container.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+    - name: web-app
+      image: web-app
+      ports:
+        - containerPort: 8080
+    - name: main-app
+      image: main-app
+```
+
+`regular-init-container.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+    - name: web-app
+      image: web-app
+      ports:
+        - containerPort: 8080
+  initContainers: # These are sequential by list-order, so db-checker runs first, then api-checker, then the main web-app container
+    - name: db-checker
+      image: busybox
+      command: [ 'wait-for-db-to-start.sh']
+    - name: api-checker
+      image: busy-box
+      command: ['wait-for-api-to-start.sh']
+```
+
+`sidecar-container.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+spec:
+  containers:
+    - name: web-app
+      image: web-app
+      ports:
+        - containerPort: 8080
+  initContainers: # These are sequential by log-checker, then the main web-app container
+    - name: log-checker
+      image: busybox
+      command: [ 'setup-log-shipper.sh']
+      restartPolicy: Always # Because the restartPolicy has been set to Always, the log-checker will run for the lifecycle of the pod, then stop after the web-app has stopped
+```
+
+# Observability
+
+## Readiness Probes
+
+* The Pod Status tells us where we're at in the lifecycle of the pod.
+* Pod Conditions give us a list of true or false values describing the state of the pod
+    * PodScheduled
+    * Initialized
+    * ContainersReady
+    * Ready
+* These conditions can be found in the `kubectl describe po pod-name` under Conditions
+* Kubernetes assumes that if the Ready condition on the Pod is met, it is ready to serve traffic. This may not be true,
+  as some applications may take time after becoming ready to be usable, ie Jenkins taking ~10 seconds to be ready.
+* What we need is a way to assign the Ready State as it pertains to the applications inside the container rather than
+  the pod's status.
+* There are different ways to do this, depending on the application in the pod:
+    * Web applications: HTTP Test - /api/ready
+    * Database applications: TCP Test - 3306
+    * Alternately, you can simply execute a command that would exit successfully if this applicaton is ready.
+
+`pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ready-pod-check
+spec:
+  containers:
+    - name: ready-pod-check # http check
+      image: image-name
+      readinessProbe:
+        httpGet:
+          path: /api/ready
+          port: 8080
+        initialDelaySeconds: 1 # How long to delay the readinessProbe check
+        periodSeconds: 3 # how long between running the readinessProbe check
+        failureThreshold: 5 # number of times the check can fail
+    - name: ready-pod-check # tcp check
+      image: image-name
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+    - name: ready-pod-check # exec command check
+      image: image-name
+      readinessProbe:
+        exec:
+          command:
+            - cat
+            - app/is_ready
+```
+
+## Liveness Probes
+
+* Liveness probes are exactly like readiness probes, except using the `livenessProbes` key.
+
+`pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ready-pod-check
+spec:
+  containers:
+    - name: ready-pod-check # http check
+      image: image-name
+      livenessProbe:
+        httpGet:
+          path: /api/ready
+          port: 8080
+        initialDelaySeconds: 1 # How long to delay the livenessProbe check
+        periodSeconds: 3 # how long between running the livenessProbe check
+        failureThreshold: 5 # number of times the check can fail
+    - name: ready-pod-check # tcp check
+      image: image-name
+      livenessProbe:
+        tcpSocket:
+          port: 3306
+    - name: ready-pod-check # exec command check
+      image: image-name
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - app/is_ready
+```
+
+# Logging
+
+## Application Logs
+
+`event-simulator.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: event-sim-pod
+spec:
+  containers:
+    - name: event-sim
+      image: kodekloud/event-simulator
+```
+
+```bash
+kubectl create -f event-simulator.yaml
+```
+
+```bash
+kubectl logs -f event-sim-pod
+```
+
+If multiple containers are run in a pod, you must declare which container you want the logs from, ie
+
+```bash
+kubectl logs -f event-sim-pod event-sim
+```
+
+## Monitoring Kubernetes Cluster Components
+
+* Metrics Server
+* Elastic Stack
+* Prometheus
+* Datadog
+* Dynatrace
+
+Heapster vs. Metrics Server
+
+* Heapster is Deprecated
+* Metrics Server is a slimmed down version
+* You can have 1 Metrics Server per Kubernetes Cluster
+* The Metrics Server retrieves metrics from each of the servers Nodes and Pods, aggregates them, and stores them in
+  memory
+* Metrics Server is **ONLY** an in-memory metrics solution
+* You cannot see historical metrics w/ Metrics Server
+* For Historical Data, use one of the monitoring services above.
+
+* If using Minikube for K8s server
+
+```bash
+minikube addons enable metrics-server
+
+```
+
+* If using anything else:
+
+```bash
+git clone https://github.com/kubernetes-sigs/metrics-server.git 
+```
+
+```bash
+kubectl create -f deploy/1.8+/
+```
+
+Once Metrics Server has had time to aggregate data, it can be accessed via:
+
+```bash
+kubectl top node
+kubectl top pod
+```
+
+# Pod Design
+
+## Labels, Selectors, and Annotations
+
+* Labels are used to differentiate and group specific items
+* Examples of Labels and Values for those Labels:
+    * Color = Blue
+    * Kind = Wild
+    * Class = Mammal
+* To specify Kubernetes labels:
+  `pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: App1
+    Function: Front-end
+spec:
+  containers:
+    - name: my-container
+      image: nginx
+```
+
+To find pods with these labels:
+
+```bash
+kubectl get pods --selector app=App1
+```
+
+Additionally, in a ReplicaSet, labels are used to group the pods:
+`replica-set.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: simple-webapp
+  labels: # Labels of the ReplicaSet itself
+    app: App1
+    Function: Front-end
+spec:
+  replicas: 3
+  selector: # The selector here is what allows the ReplicaSet to connect to the Pods via the labels defined below
+    matchLabels:
+      app: App1
+  template:
+    metadata:
+      labels: # Labels defined on the Pod
+        app: App1
+        Function: Front-end
+    spec:
+      containers:
+        - name: simple-webapp
+          image: simple-webapp
+```
+
+`service-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector: # This selector is used to match the Service to the Pods in the ReplicaSet
+    app: App1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+```
+
+#### Annotations:
+
+`replicaset-definition.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: my-replicaset
+  labels:
+    app: App1
+    Function: Front-end
+  annotations: # Used to record other details of information rather than matching another object, ie name, version, build number, contact details, etc.
+    buildversion: 1.34
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: App1
+  template:
+    metadata:
+      labels:
+        app: App1
+        Function: Front-end
+    spec:
+      containers:
+        - name: simple-webapp
+          image: simple-webapp
+```
+
+## Deployments, Updates, and Rollback
+
+* When you first create a deployment, it triggers a rollout
+* A new rollout creates a new ReplicaSet, which is recorded as a new deployment revision
+* In the future, when the application is updated, a new rollout is triggered.
+* These rollouts allow us to roll back to a previous deployment if necessary
+
+To deploy a rollout:
+
+```bash
+kubectl rollout status deployment/myapp-development
+```
+
+To get a list of previous rollouts:
+
+```bash
+kubectl rollout history deployment/myapp-development
+```
+
+There are two types of deployment strategies:
+
+* Recreate Strategy
+    * First, destroy the old running instances of the application, then deploy new instances of the application
+        * Downside: This will cause downtime between the old instances being destroyed and the new instances being
+          deployed
+        * ex 1,2,3,4,5 down | 1,2,3,4,5 up
+* Rolling Update (Default deployment strategy)
+    * We take down instances one at a time and replace them with like for like
+    * Seamless update strategy without downtime
+    * ex. 1 down, 1 up, 2 down, 2 up, 3 down, 3 up, etc.
+
+To roll back a deployment, you can use the following command:
+
+```bash
+kubectl rollout undo deployment myapp-deployment
+```
+
+This will follow the deployment strategy, so by default it will use a rolling downgrade strategy
+
+## Blue/Green Deployments
+
+* These deployment strategies can't be defined as deployment strategies, but can be done other ways
+* These deployments are best implemented Service Meshes like Istio
+* Blue/Green Updates
+    * We have 2 versions of the application deployed alongside each other
+    * The old version is the Blue deployment
+    * The new version is the Green deployment
+    * All traffic is routed to the old deployment until all tests have passed on the new deployment. At that point we
+      switch all traffic to the new deploy at once.
+    * On base K8s, this can be done via Labels and Services:
+        * On the Blue deploy, set a label of v1
+        * On the Service, set a label of v1
+        * On the Green deploy, set a label of v2
+        * Once the Green deployment is finished, set the label on the Service to v2
+
+`my-app-blue.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-blue
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        version: v1
+    spec:
+      containers:
+        - name: app-container
+          image: myapp-image:1.0
+  replicas: 5
+  selector:
+    matchLabels:
+      version: v1
+```
+
+`service-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    version: v1
+```
+
+`my-app-green.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-green
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        version: v2
+    spec:
+      containers:
+        - name: app-container
+          image: myapp-image:2.0
+  replicas: 5
+  selector:
+    matchLabels:
+      version: v2
+```
+
+Once the Green Deploy is finished, we change the Service:
+
+`service-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    version: v2
+```
+
+* Canary Updates
+    * In this version, we route only a small amount of traffic to the new deploy
+    * Ex, 6 deployments, 5 blue, 1 green
+    * If we don't see any errors, we swap the blue deployments over to green
+    * After finished, we remove the canary deploy
+    * To do this, we create a label for both deployments and set a selector in the Service, ie `app:Front-end`
+        * This will route the traffic 50% to old, 50% to new
+        * To lower the amount of traffic to the canary deployment, we reduce the number of pods in the deployment to the
+          minimum.
+    * Traffic split is always determined by the pods in the deployments, and as a ratio of that number, ie you need 100
+      pods to have control down to 1% of traffic being routed to a specific deployment.
+
+`my-app-primary.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-primary
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        version: v1
+        app: front-end
+    spec:
+      containers:
+        - name: app-container
+          image: myapp-image:2.0
+  replicas: 5
+  selector:
+    matchLabels:
+      app: front-end
+```
+
+`service-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: front-end
+```
+
+`my-app-canary.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-canary
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        version: v2
+        app: front-end
+    spec:
+      containers:
+        - name: app-container
+          image: myapp-image:2.0
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-end
+```
+
+## Jobs
+
+* We may need short-lived pods to complete jobs such as reports, send emails, etc.
+
+`pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: math-pod
+spec:
+  containers:
+    - name: math-add
+      image: ubuntu
+      command:
+        - "expr"
+        - "3"
+        - "+"
+        - "2"
+  restartPolicy: Never # Only run this pod once
+```
+
+If we create this pod on Kubernetes, the pod will compute the command, shut down the pod, and then restart and re-run
+the command until a threshold has been reached.
+To prevent the pod from being created indefinitlely, add the `restartPolicy: Never` to the spec field.
+
+`job-definition.yaml`
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: math-add-job
+spec:
+  completions: 3 # Number of pods to run the job on
+  template:
+    spec:
+      containers:
+        - name: math-add
+          image: ubuntu
+          command:
+            - "expr"
+            - "3"
+            - "+"
+            - "2"
+      restartPolicy: Never
+```
+
+* If we want to run the job across 3 separate pods, we can use `completions: 3`.
+* These pods run in series rather than in parallel. Pod 1 finishes, then 2, then 3.
+* If we want to run the jobs in parallel, we use `parallelism: 3`
+
+`job-definition.yaml`
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: random-error-job
+spec:
+  completions: 3 # Number of pods to run the job on
+  parallelism: 3 # Allow 3 jobs to run in parallel
+  template:
+    spec:
+      containers:
+        - name: random-error
+          image: kodekloud/random-error
+      restartPolicy: Never
+```
+
+In this instance, the jobs will fail randomly until 3 jobs have completed successfully.
+
+## CronJobs
+
+* Allows us to create jobs with the cron scheduler.
+
+`cron-job-definition.yaml`
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reporting-cron-job
+spec:
+  schedule: "* /1 * * * *"
+  jobTemplate:
+    spec:
+      completions: 3
+      parallelism: 3
+      template:
+        spec:
+          containers:
+            - name: reporting-tool
+              image: reporting-tool
+          restartPolicy: Never
+```
