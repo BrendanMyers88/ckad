@@ -2280,7 +2280,7 @@ kind: CronJob
 metadata:
   name: reporting-cron-job
 spec:
-  schedule: "* /1 * * * *"
+  schedule: "*/1 * * * *"
   jobTemplate:
     spec:
       completions: 3
