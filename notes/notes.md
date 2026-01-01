@@ -1278,7 +1278,7 @@ You can specify in Bytes w/ no label
 * 1M = 1 Megabyte (1,000,000 Bytes)
 * 1K = 1 Kilobyte (1,000 Bytes)
 * 1Gi = 1 Gibibyte (1,073,741,824 Bytes)
-* 1Mi = 1 Mebibyte (1,0478,576 Bytes)
+* 1Mi = 1 Mebibyte (1,048,576 Bytes)
 * 1Ki = 1 Kibibyte (1,024 Bytes)
 
 The OOM Error stands for Out of Memory and can occur because a pod can request more memory than is available. This will
