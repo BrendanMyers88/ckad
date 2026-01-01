@@ -1646,7 +1646,7 @@ spec:
     * 2+ containers running in a pod
     * Limitation: You cannot define which container starts first in co-located containers
 * Regular Init Containers
-    * Used when intiialization steps need to occur before the main application itself
+    * Used when initialization steps need to occur before the main application itself
     * ie, an application that waits for the database to be ready before starting the main application
     * The init container starts its job, ends its job, and then the main application starts
     * Once all init containers complete, the regular containers are all started simultaneously.
