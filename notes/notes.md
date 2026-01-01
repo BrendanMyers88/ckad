@@ -2220,7 +2220,7 @@ spec:
 
 If we create this pod on Kubernetes, the pod will compute the command, shut down the pod, and then restart and re-run
 the command until a threshold has been reached.
-To prevent the pod from being created indefinitlely, add the `restartPolicy: Never` to the spec field.
+To prevent the pod from being created indefinitely, add the `restartPolicy: Never` to the spec field.
 
 `job-definition.yaml`
 
