@@ -2702,7 +2702,7 @@ spec:
 
 ### Persistent Volumes
 
-* Rather than creating volumes on each pod, we want to create a centralized and maintable persistent volume.
+* Rather than creating volumes on each pod, we want to create a centralized and maintainable persistent volume.
 
 `pv-definition.yaml`
 
