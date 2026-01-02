@@ -130,7 +130,7 @@
                 * Unlike `docker` commands, `crictl` is aware of pods, which docker doesn't have available.
 
   |                | `ctr`      | `nerdctl`       | `crictl`                     |
-    |----------------|------------|-----------------|------------------------------|
+        |----------------|------------|-----------------|------------------------------|
   | **Purpose**    | Debugging  | General Purpose | Debugging                    |
   | **Community**  | ContainerD | ContainerD      | Kubernetes                   |
   | **Works With** | ContainerD | ContainerD      | All CRI Compatible runtimes. |
@@ -1691,10 +1691,10 @@ spec:
   initContainers: # These are sequential by list-order, so db-checker runs first, then api-checker, then the main web-app container
     - name: db-checker
       image: busybox
-      command: [ 'wait-for-db-to-start.sh']
+      command: [ 'wait-for-db-to-start.sh' ]
     - name: api-checker
       image: busy-box
-      command: ['wait-for-api-to-start.sh']
+      command: [ 'wait-for-api-to-start.sh' ]
 ```
 
 `sidecar-container.yaml`
@@ -1713,7 +1713,7 @@ spec:
   initContainers: # These are sequential by log-checker, then the main web-app container
     - name: log-checker
       image: busybox
-      command: [ 'setup-log-shipper.sh']
+      command: [ 'setup-log-shipper.sh' ]
       restartPolicy: Always # Because the restartPolicy has been set to Always, the log-checker will run for the lifecycle of the pod, then stop after the web-app has stopped
 ```
 
@@ -2291,4 +2291,599 @@ spec:
             - name: reporting-tool
               image: reporting-tool
           restartPolicy: Never
+```
+
+# Services & Networking
+
+## Network Policies
+
+### Traffic
+
+* Two types of traffic:
+    * This is dependent on the perspective of the application
+        * Ingress - The inbound traffic from the user to the frontend application from frontend application perspective
+        * Egress - The outbound traffic from the frontend application to the rest of the stack, ie backend
+* Example:
+    * Frontend Webapp (Port 80)
+        * Ingress: User to Webapp
+        * Egress: Webapp to Backend server
+    * Backend Server (Port 5000)
+        * Ingress: Webapp to Backend server
+        * Egress: Backend server to DB
+    * Database (Port 3306)
+        * Ingress: Backend server to DB
+
+* Kubernetes defaults to an "All Allow" rule for network traffic between pods or services
+* There may be reasons to forego the all allow strategy in favor of more specificity:
+    * Security team
+    * Audits
+    * Etc.
+* To override this default network traffic, a Network Policy would be used.
+    * This could be used to only allow database traffic to come from the API server, rather than the frontend
+    * A Network Policy is linked to one or more pods and rules are defined about the policy
+        * ie only allow ingress traffic on port 3306 for the DB server
+* Network policies are enforced by the network solution implemented on the Kubernetes cluster
+* Even if the network is configured with a solution that doesn't support network policies won't throw errors, it just
+  won't enforce the policy.
+    * Solutions that support network policies
+        * Kube-router
+        * Calico
+        * Romana
+        * Weave Net
+    * Solutions that **DO NOT** support network policies
+        * Flannel
+* Responses do not require an egress rule. If a DB has an ingress rule, the response can be sent back without a separate
+  rule.
+
+Snippet Examples:
+`db-pod.yaml`
+
+```yaml
+labels:
+  role: db
+```
+
+`network-policy.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              name: api-pod
+      ports:
+        - protocol: TCP
+          port: 3306
+```
+
+```bash
+kubectl create -f network-policy.yaml
+```
+
+## Network Policies Continued:
+
+* This policy assumes 3 API Pods. 1 Prod, 1 Dev, 1 Test
+* Additionally, we'll assume a backup server at IP address `192.168.5.10`
+  `db-policy.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from: # each value in the array acts as an `or` operator. This array allows the podSelector or the ipBlock. If its inside the same array element, it's an `and` operator. ie the podSelector and nameSelector for `api-pod` and namespaceSelector `prod`.
+        - podSelector:
+            matchLabels:
+              name: api-pod
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod # If we don't want to allow connections to the Test/Dev API Pod environments
+        - ipBlock:
+            cidr: 192.168.5.10/32 # If we want to allow backup server access to the Database
+      ports:
+        - protocol: TCP
+          port: 3306
+```
+
+* This policy will have an agent on the DB pod that pushes to the backup server, eg need an egress route for the DB
+  pod's network policy.
+
+`db-policy.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              name: api-pod
+      ports:
+        - protocol: TCP
+          port: 3306
+  egress:
+    - to: # To create multiple egress/ingress points, create new `to` keys, ie to for both mysql and payroll
+        - ipBlock:
+            cidr: 192.168.5.10/32
+      ports:
+        - protocol: TCP
+          port: 80
+```
+
+Shortened version of `networkpolicies` get command is `netpol`:
+
+```bash
+kubectl get netpol
+```
+
+## Ingress Networking
+
+* Ingress in Kubernetes is like a layer 7 load balancer
+
+1. Deploy Ingress Controller
+    * Nginx, Traefik, etc.
+2. Config Ingress Resources
+    * K8s config file
+
+`nginx-ingress-controller.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ingress-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nginx-ingress
+  template:
+    metadata:
+      labels:
+        name: nginx-ingress
+    spec:
+      containers:
+        - name: nginx-ingress-controller
+          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+          args:
+            - /nginx-ingress-controller
+            - --configmap=$(POD_NAMESPACE)/nginx-configuration
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
+```
+
+Ingress controller requires a ConfigMap
+`config-map.yaml`
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configuration
+```
+
+Next we create a Service of type NodePort
+`service-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
+  selector:
+    name: nginx-ingress
+```
+
+Next we create a ServiceAccount with the appropriate roles and rolebindings
+
+`serviceaccount-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-ingress-serviceaccount
+```
+
+`ingress-wear.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wear
+spec:
+  defaultBackend:
+    service:
+      name: wear-service
+      port: 80
+```
+
+```bash
+kubectl create -f ingress-wear.yaml
+```
+
+Split domains by subfolders
+`ingress-wear-watch.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wear-watch
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /wear
+            backend:
+              service:
+                name: wear-service
+                port: 80
+            pathType: Prefix
+          - path: /watch
+            backend:
+              service:
+                name: watch-service
+                port: 80
+            pathType: Prefix
+```
+
+Split domains by subdomains
+`ingress-wear-watch.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wear-watch
+spec:
+  rules:
+    - host: wear.myurl.com
+      http:
+        paths:
+          - path: /wear
+            backend:
+              service:
+                name: wear-service
+                port:
+                  number: 80
+            pathType: Prefix
+    - host: watch.myurl.com
+      http:
+        paths:
+          - path: /watch
+            backend:
+              service:
+                name: watch-service
+                port:
+                  number: 80
+            pathType: Prefix
+```
+
+# State Persistence
+
+## Docker Storage
+
+There are two types of storage in Docker:
+
+* Storage Drivers
+* Volume Drivers
+
+### Docker Storage Drivers
+
+* How Docker stores data on its file system
+* `/var/lib/docker`
+    * `aufs`
+    * `containers`
+    * `image`
+    * `volumes`
+
+Docker's Layered Architecture
+
+* Layer 1: Base Ubuntu Layer | 120MB
+* Layer 2: Changes in apt packages | 306MB
+* Layer 3: Changes in pip packages | 6.3MB
+* Layer 4: Source code | 229B
+* Layer 5: Update entrypoint | 0B
+
+```dockerfile
+FROM Ubuntu
+RUN apt-get update && apt-get -y install python
+RUN pip install flask flask-mysql
+COPY . /opt/source-code
+ENTRYPOINT exec FLASK_APP=/opt/source-code/app.py flask run
+```
+
+* Docker will use the existing layers from the cache as long as they are the same, ie an app could use a different Layer
+  4 and it would use Layers 1-3 from cache.
+* Editing any files in the image will be done on the Read-Write Layer as opposed to the base image, as its a Read-Only
+  Layer.
+    * The read-write layer will be discarded when the container is killed.
+* If instead we want to persist data, we'll need to add a Persistent Volume to the Image.
+* There are two types of data mounts:
+    * Volume mount: data stored in docker's volume folder
+        * `docker run -v data_volume:/var/lib/mysql mysql`
+    * Bind mount: data stored elsewhere that's bound to docker data
+        * `docker run -v /data/mysql:/var/lib/mysql mysql`
+    * The modern way to do the mount is to use the `--mount` option to be more verbose
+        * `docker run --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql`
+* To store this data, docker uses Storage Drivers:
+    * AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2
+    * This is operating-system-dependent. Docker will be done automatically
+
+### Docker Volumes
+
+* The default docker volume plugin is `Local`
+    * Others include Azure File Storage, Convoy, DigitalOcean Block Storage, Flocker, gce-docker, GlusterFS, NetApp,
+      RexRay, Portworx, and VMWare vSphere Storage among others
+* To use a specific volume, use the `--volume-driver` option
+    * `docker run -it --name mysql --volume-driver rexray/ebs --mount src=ebs-vol,target=/var/lib/mysql mysql`
+
+### Kubernetes Volumes
+
+Example Pod w/ Volume
+
+`pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rng-pod
+spec:
+  containers:
+    - name: alpine
+      image: alpine
+      command: [ "bin/sh", "-c" ]
+      args: [ "shuf -i 0-100 -n 1 >> /opt/number.out;" ]
+      volumeMounts:
+        - mountPath: /opt
+          name: data-volume
+  volumes:
+    - name: data-volume
+      hostPath:
+        path: /data
+        type: Directory
+      # Alternative AWS EBS Storage:
+      # awsElasticBlockStore:
+      #  volumeID: <volume-id>
+      #  fsType: ext4
+```
+
+### Persistent Volumes
+
+* Rather than creating volumes on each pod, we want to create a centralized and maintainable persistent volume.
+
+`pv-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-vol1
+spec:
+  accessModes: # ReadOnlyMany, ReadWriteOnce, or ReadWriteMany
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath: # Don't use hostPath in a Production Environment
+    path: /tmp/data
+```
+
+### Persistent Volume Claims
+
+* Now that we've created the Persistent Volume, we need a PVC to access the PV.
+* An administrator creates the Persistent Volumes, the User creates the Persistent Volume Claims
+* Each PVC is bound to a single PV
+* Kubernetes will make sure each PV has Sufficient Capacity, Access Modes, Volume Modes, and Storage Class appropriate
+  to the PVC.
+* Labels and Selectors can be used to bind specific PV to PVC.
+
+`pvc-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+```
+
+This PVC would be bound to the previous PV because the requested storage is sufficient (500Mi vs. 1Gi)
+
+To create a PVC within a Pod, you can set it up like the following:
+
+* This can also be done in the pod section of ReplicaSets and Deployments
+
+  `pod-definition.yaml`
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+        - mountPath: "/var/www/html"
+          name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
+```
+
+Stateful sets work in an Ordered, graceful deployment
+They also use stable, unique network identifier
+Essentially a Deployment w/ an extra field
+
+Headless Services can be created just like a `Service`, except there is a `clusterIP: none` under spec
+
+# Security
+
+## Security Primitives
+* Secure Hosts
+  * Disable Password Authentication
+  * SSH key based auth
+* Secure Kubernetes
+  * Controlling access to the API server itself
+    * Who can access the cluster?
+      * Static Token File
+      * Certificates
+      * External Authentication providers - LDAP
+      * and for Machines: Service Accounts
+    * What can they do?
+      * RBAC Authorization
+      * ABAC Authorization
+      * Node Authorization
+      * Webhook Mode
+  * All communication on the cluster is secured by TLS Encryption
+  * Network Policies
+
+## Authentication
+* Types of Accounts that will be accessing the cluster
+  * Administrative Users
+    * Admins
+    * Developers
+  * End Users
+  * Service Accounts
+    * Bots
+* Kubernetes does not allow for the creation of user accounts individually, but it does allow for the creation for ServiceAccounts
+* Accounts
+  * All Administrative User access is managed by the API Server
+    * `kubectl`
+    * `curl https://kube-server-ip:port/`
+### Auth Mechanisms
+  1. kube-apiserver
+     * Static Token Files
+       * Not recommended as it stores usernames, passwords, and tokens in plaintext
+     * Certificates
+     * Identity Services
+  2. Authenticate User
+  3. Process Request
+
+
+`/tmp/users/user-details.csv`
+
+```csv
+User File Contents
+password123,user1,u0001
+password123,user2,u0002
+password123,user3,u0003
+password123,user4,u0004
+password123,user5,u0005
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --authorization-mode=Node,RBAC
+    - --basic-auth-file=/tmp/users/user-details.csv
+    image: k8s.gcr.io/kube-apiserver-amd64:v1.11.3
+    name: kube-apiserver
+    volumeMounts:
+    - mountPath: /tmp/users # user-details csv here
+      name: usr-details
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /tmp/users
+      type: DirectoryOrCreate
+    name: usr-details
+```
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: [ "pods" ]
+    verbs: [ "get", "watch" ]
+```
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: user1 # Name is case-sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role # this must be a Role or ClusterRole
+  name: pod-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+```
+
+```bash
+curl -v -k https://localhost:6443/api/v1/pods -u "user1:password123"
 ```
