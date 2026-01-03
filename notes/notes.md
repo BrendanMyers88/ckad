@@ -3210,7 +3210,7 @@ rules:
 
 ## Cluster Roles
 
-* Rather than namespaced roles, the Cluser Roles will be valid for the whole cluster
+* Rather than namespaced roles, the Cluster Roles will be valid for the whole cluster
 * Examples of Cluster-Scoped Resources:
     * nodes
     * persistentvolumes
