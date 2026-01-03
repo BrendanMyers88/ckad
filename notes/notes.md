@@ -3347,7 +3347,7 @@ default     Active  55m
         * It must be able to receive and respond with the appropriate responses that the Webhook expects
         * If deployed in the cluster, it will need a service, i.e., `webhook-service`
     * Second, we configure the webhook on Kubernetes by creating a Webhook Configuration Object
-        *
+
 
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1
