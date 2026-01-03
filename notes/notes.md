@@ -3618,7 +3618,7 @@ Other commands:
 ```bash
 helm list
 helm uninstall my-release
-helm pull --untar bitname/wordpress
+helm pull --untar bitnami/wordpress
 ls wordpress
 helm install release-4 ./wordpress
 ```
