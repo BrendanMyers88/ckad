@@ -3399,7 +3399,7 @@ webhooks:
 * Although they can be available, there is only one Preferred or Storage version
     * This is the default api group used when using the api to make updates
         * i.e., `kubectl get deployment` will use the `v1` command as it's the preferred version.
-    * The Storage version is the version which an object is stored in etcd, respective the the version used in the yaml
+    * The Storage version is the version which an object is stored in etcd, respective to the version used in the yaml
       file to create it.
     * Preferred and Storage versions can be different, although that's not typical.
 
