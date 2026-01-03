@@ -3215,7 +3215,7 @@ rules:
     * nodes
     * persistentvolumes
     * clusterroles
-    * cluterrolebindings
+    * clusterrolebindings
     * certificatesigningrequests
     * namespaces
     * And more...
