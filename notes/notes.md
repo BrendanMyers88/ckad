@@ -3549,8 +3549,7 @@ cat /etc/*release*
 
 ## Helm Concepts
 
-Instead of storing values which may change in the individual yaml files, i.e., `deployment.yaml`, `secrets.yaml`,
-`pvc.yaml`
+Instead of storing values which may change in the individual yaml files, i.e., `deployment.yaml`, `secrets.yaml`, `pvc.yaml`, we use Helm values and templates as follows:
 
 * We replace the values with a variable, `{{ .Values.<variable-name> }}`, for example `{{ .Values.storage }}`
 * To access the values in the variable, we create a yaml file that stores these values.
