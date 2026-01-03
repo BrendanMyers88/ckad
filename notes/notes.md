@@ -3496,7 +3496,7 @@ spec:
 ```
 
 ```bash
-kubectl create flight-ticket-definition.yaml
+kubectl create -f flight-ticket-definition.yaml
 kubectl create -f flightticket.yaml
 ```
 
