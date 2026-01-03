@@ -3448,7 +3448,7 @@ inside the `/etc/kubernetes/manifests/kube-apiserver.yaml`
 `flightticket.yaml`
 
 ```yaml
-apiVersions: flights.com/v1
+apiVersion: flights.com/v1
 kind: FlightTicket
 metadata:
   name: my-flight-ticket
