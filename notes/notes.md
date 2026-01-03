@@ -3597,7 +3597,7 @@ You can search at their website, or alternately `helm search hub wordpress`
 Other repositories use different repos, ex:
 
 ```bash
-helm repo bitnami https://charts.bitnami.com/bitnami
+helm repo add bitnami https://charts.bitnami.com/bitnami
 helm search repo wordpress
 helm repo list
 ```
