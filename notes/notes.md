@@ -4410,6 +4410,9 @@ https://learn.kodekloud.com/user/courses/kubernetes-challenges
 
 [Exploring Kubernetes 1.29 Updates - Mandala Universe](https://www.youtube.com/watch?v=yCkQgKVwSVU)
 
+[Kubernetes 1.30 (April 2024) – Official Release Notes and Updates](https://kubernetes.io/docs/setup/release/notes/)
+
+[Kubernetes 1.31 (August 2024) – Official Release Notes and Updates](https://kubernetes.io/docs/setup/release/notes/)
 **Kubernetes Project Videos:**
 
 Special Interest Groups (SIGs) in Kubernetes
