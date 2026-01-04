@@ -4295,7 +4295,7 @@ spec:
 
 ```yaml
 # k8s/overlays/dev/kustomization.yaml
-bases:
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
   - ../../base # relative path to the `kustomization.yaml` in the base directory
 patch: |-
   - op: replace
@@ -4305,7 +4305,7 @@ patch: |-
 
 ```yaml
 # k8s/overlays/prod/kustomization.yaml
-bases:
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
   - ../../base # relative path to the `kustomization.yaml` in the base directory
 patch: |-
   - op: replace
@@ -4319,7 +4319,7 @@ patch: |-
 
 ```yaml
 # k8s/overlays/prod/kustomization.yaml
-bases:
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
   - ../../base # relative path to the `kustomization.yaml` in the base directory
 resources:
   - grafana-depl.yaml
@@ -4390,7 +4390,7 @@ patches:
 
 ```yaml
 # overlays/premium/kustomization.yaml
-bases:
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
   - ../../base
 
 components:
