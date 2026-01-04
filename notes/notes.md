@@ -3841,7 +3841,6 @@ Example Directory Structure:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# noinspection KubernetesUnknownValues
 resources:
   - api/api-depl.yaml
   - api/api-service.yaml
