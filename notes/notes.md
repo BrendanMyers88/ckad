@@ -10,9 +10,9 @@
 * Kubernetes official documentation is allowed at all times in the exam.
 * Code 30KK to get 30% off site-wide at any Linux Foundation Certification.
 * Reference Documents:
-    * Certified Kubernetes Application Developer: https://www.cncf.io/certification/ckad/
-    * Candidate Handbook: https://www.cncf.io/certification/candidate-handbook
-    * Exam Tips: https://docs.linuxfoundation.org/tc-docs/certification/tips-cka-and-ckad
+  * Certified Kubernetes Application Developer: https://www.cncf.io/certification/ckad/
+  * Candidate Handbook: https://www.cncf.io/certification/candidate-handbook
+  * Exam Tips: https://docs.linuxfoundation.org/tc-docs/certification/tips-cka-and-ckad
 * KodeKloud Discord Channel: https://discord.gg/VAfhT6ZR9E (`#ckad-sg`)
 
 ## Module 2: Core Concepts
@@ -22,73 +22,73 @@
 * Kubernetes Architecture
 * Create and Configure Pods
 * Nodes (Minions):
-    * A machine (physical or virtual) which Kubernetes is installed on.
-    * A worker machine where containers are launched
+  * A machine (physical or virtual) which Kubernetes is installed on.
+  * A worker machine where containers are launched
 * Cluster:
-    * A set of nodes grouped together, so that if one node fails the application won’t go down.
-    * Having multiple nodes helps in sharing load
+  * A set of nodes grouped together, so that if one node fails the application won’t go down.
+  * Having multiple nodes helps in sharing load
 * Master:
-    * Another node with Kubernetes installed in it, and it’s configured as a Master node.
-    * Watches over the other nodes in the cluster
-    * Responsible for the orchestration of containers on the worker nodes.
+  * Another node with Kubernetes installed in it, and it’s configured as a Master node.
+  * Watches over the other nodes in the cluster
+  * Responsible for the orchestration of containers on the worker nodes.
 * Kubernetes Components:
-    * API Server
-        * Acts as the frontend for Kubernetes
-        * Users, management devices, command line interfaces all talk with API server to interact with Kubernetes
-          cluster
-    * etcd service
-        * Key store
-        * Distributed reliable key-value store used to store all data used to manage the cluster
-        * i.e., when you have multiple nodes and multiple masters in your cluster, etcd stores all that information on
-          all
-          the nodes in a distributed manner
-            * Responsible for implementing logs in the cluster to ensure there are no conflicts between the masters
-    * Kubelet service
-        * The agent that runs on each node in the cluster.
-        * Responsible for making sure that the containers are running on the nodes as we expect.
-    * Container Runtime
-        * The underlying software used to run containers
-        * In this case, we’re using Docker but there are other options as well.
-        * Other instances might be RKT or CRI-O
-    * Controller
-        * The "brain" behind the orchestration
-        * Responsible for noticing and responding when nodes, containers, or endpoints go down.
-        * Make decisions to bring up new containers instances.
-    * Scheduler
-        * Responsible to distributing work or containers across multiple nodes
-        * Looks for newly created containers and assigns them to nodes.
+  * API Server
+    * Acts as the frontend for Kubernetes
+    * Users, management devices, command line interfaces all talk with API server to interact with Kubernetes
+      cluster
+  * etcd service
+    * Key store
+    * Distributed reliable key-value store used to store all data used to manage the cluster
+    * i.e., when you have multiple nodes and multiple masters in your cluster, etcd stores all that information on
+      all
+      the nodes in a distributed manner
+      * Responsible for implementing logs in the cluster to ensure there are no conflicts between the masters
+  * Kubelet service
+    * The agent that runs on each node in the cluster.
+    * Responsible for making sure that the containers are running on the nodes as we expect.
+  * Container Runtime
+    * The underlying software used to run containers
+    * In this case, we’re using Docker but there are other options as well.
+    * Other instances might be RKT or CRI-O
+  * Controller
+    * The "brain" behind the orchestration
+    * Responsible for noticing and responding when nodes, containers, or endpoints go down.
+    * Make decisions to bring up new containers instances.
+  * Scheduler
+    * Responsible to distributing work or containers across multiple nodes
+    * Looks for newly created containers and assigns them to nodes.
 * Master vs. Worker Nodes:
-    * Worker node
-        * Where the containers are hosted, ex - Docker Containers
-        * To run docker containers on a system, we need a container runtime installed.
-        * Has Container Runtime
-        * Has Kubelet agent to provide health checks to master node and carry out actions requested by the master node.
-    * Master node:
-        * Has the Kubernetes API Server
-        * Has etcd key-value store
-        * Has the controller
-        * Has the scheduler
+  * Worker node
+    * Where the containers are hosted, ex - Docker Containers
+    * To run docker containers on a system, we need a container runtime installed.
+    * Has Container Runtime
+    * Has Kubelet agent to provide health checks to master node and carry out actions requested by the master node.
+  * Master node:
+    * Has the Kubernetes API Server
+    * Has etcd key-value store
+    * Has the controller
+    * Has the scheduler
 * kubectl (CLI tool)
-    * Used to deploy and manage applications on a Kubernetes cluster
-    * It can be used:
-        * to get cluster information
-        * To get the status of other nodes in the cluster
-        * To manage "many other things"
-    * `kubectl run` command is used to deploy and application on the cluster
-    * `kubectl cluster info` command is used to view information about the cluster
-    * `kubectl get nodes` command is used to list all nodes which are part of the cluster.
+  * Used to deploy and manage applications on a Kubernetes cluster
+  * It can be used:
+    * to get cluster information
+    * To get the status of other nodes in the cluster
+    * To manage "many other things"
+  * `kubectl run` command is used to deploy and application on the cluster
+  * `kubectl cluster info` command is used to view information about the cluster
+  * `kubectl get nodes` command is used to list all nodes which are part of the cluster.
 
 ### Docker vs. Containerd
 
 * Container Runtime Interface (CRI)
-    * Allowed any vendor to work as a container runtime for Kubernetes, as long as they adhered to the Open Container
-      Initiative (OCI) Standards.
+  * Allowed any vendor to work as a container runtime for Kubernetes, as long as they adhered to the Open Container
+    Initiative (OCI) Standards.
 * Open Container Initiative (OCI)
-    * Imagespec
-        * Specifications to how an image should be built.
-    * Runtimespec
-        * Specifications to how a container runtime should be developed.
-    * As long as these standards are met, anyone can build a container runtime that will work with Kubernetes.
+  * Imagespec
+    * Specifications to how an image should be built.
+  * Runtimespec
+    * Specifications to how a container runtime should be developed.
+  * As long as these standards are met, anyone can build a container runtime that will work with Kubernetes.
 * Because Docker was built before the CRI was introduced, it wasn’t built to support CRI standards.
 * Kubernetes introduced dockershim to allow Docker to bypass the CRI standards and allow Docker to be used in
   Kubernetes.
@@ -96,42 +96,42 @@
 * Instead, the docker images relied on containerd to meet CRI standards and Docker was removed as a supported runtime in
   Kubernetes.
 * Containerd
-    * You can install containerd itself without having the install Docker, i.e., if you didn’t need all of Dockers other
-      features.
-    * `ctr` is the CLI tool to run containerd, solely made for debugging containerd as it’s not very user-friendly. Only
-      supports limited features.
-    * Ex.
-        * `ctr images pull docker.io/library/redis:alpine`
-        * `ctr run docker.io/library/redis:alpine`
-    * An alternative to ctr is `nerdctl`
-        * Provides a docker-like CLI for Containerd
-        * Supports docker compose
-        * Supports newest features in containerd
-            * Encrypted container images
-            * Lazy pulling
-            * P2P image distribution
-            * Image signing and verification
-            * Namespaces in Kubernetes
-        * `nerdctl` used in place of `docker`, i.e.,
-            * `nerdctl run —name redis reds:alpine`
-            * `nerdctl run —name webserver -p 80:80 -d nginx`
-    * Another CLI tool is `crictl`
-        * `crictl` provides a CLI for the CRI compatible container runtimes
-        * `crictl` in installed separately
-        * it's used to inspect and debug container runtimes
-            * It ideally won't be used to create containers
-        * The tool works across different runtimes, so long as they are OCI compatible.
-        * ex
-            * `crictl pull busybox`
-            * `crictl images`
-            * `crictl ps -a`
-            * `crictl exec -it <container id> ls`
-            * `crictl logs <container id>`
-            * `crictl pods`
-                * Unlike `docker` commands, `crictl` is aware of pods, which docker doesn't have available.
+  * You can install containerd itself without having the install Docker, i.e., if you didn’t need all of Dockers other
+    features.
+  * `ctr` is the CLI tool to run containerd, solely made for debugging containerd as it’s not very user-friendly. Only
+    supports limited features.
+  * Ex.
+    * `ctr images pull docker.io/library/redis:alpine`
+    * `ctr run docker.io/library/redis:alpine`
+  * An alternative to ctr is `nerdctl`
+    * Provides a docker-like CLI for Containerd
+    * Supports docker compose
+    * Supports newest features in containerd
+      * Encrypted container images
+      * Lazy pulling
+      * P2P image distribution
+      * Image signing and verification
+      * Namespaces in Kubernetes
+    * `nerdctl` used in place of `docker`, i.e.,
+      * `nerdctl run —name redis reds:alpine`
+      * `nerdctl run —name webserver -p 80:80 -d nginx`
+  * Another CLI tool is `crictl`
+    * `crictl` provides a CLI for the CRI compatible container runtimes
+    * `crictl` in installed separately
+    * it's used to inspect and debug container runtimes
+      * It ideally won't be used to create containers
+    * The tool works across different runtimes, so long as they are OCI compatible.
+    * ex
+      * `crictl pull busybox`
+      * `crictl images`
+      * `crictl ps -a`
+      * `crictl exec -it <container id> ls`
+      * `crictl logs <container id>`
+      * `crictl pods`
+        * Unlike `docker` commands, `crictl` is aware of pods, which docker doesn't have available.
 
   |                | `ctr`      | `nerdctl`       | `crictl`                     |
-            |----------------|------------|-----------------|------------------------------|
+                    |----------------|------------|-----------------|------------------------------|
   | **Purpose**    | Debugging  | General Purpose | Debugging                    |
   | **Community**  | ContainerD | ContainerD      | Kubernetes                   |
   | **Works With** | ContainerD | ContainerD      | All CRI Compatible runtimes. |
@@ -147,11 +147,11 @@
 * If the node cannot scale further, you would create a new node in the cluster with a new pod.
 * On the other hand, when scaling down, you would delete existing pods.
 * A pod may have multiple containers inside it, but not the same container,
-    * ie 1 python image and 1 nginx image
-    * Not 2 python images.
+  * ie 1 python image and 1 nginx image
+  * Not 2 python images.
 * How to deploy pods:
-    * `kubectl run nginx --image nginx`
-    * List pods: `kubectl get pods`
+  * `kubectl run nginx --image nginx`
+  * List pods: `kubectl get pods`
 
 ### Recap: Pods with YAML
 
@@ -202,24 +202,24 @@ kubectl edit pod
 ```
 
 * Only this list of properties is editable:
-    * `spec.containers[*].image`
-    * `spec.initContainers[*].image`
-    * `spec.activeDeadlineSeconds`
-    * `spec.tolerations`
-    * `spec.terminationGracePeriodSeconds`
+  * `spec.containers[*].image`
+  * `spec.initContainers[*].image`
+  * `spec.activeDeadlineSeconds`
+  * `spec.tolerations`
+  * `spec.terminationGracePeriodSeconds`
 
 ### Replication Controller
 
 * Why do we need a Replication Controller?
-    * High Availability
-    * The Replication Controller lets us run multiple instances of a pod.
-    * It can also bring up a new pod in a single pod node when the existing pod fails.
-    * It ensures the specified number of pods are always running.
+  * High Availability
+  * The Replication Controller lets us run multiple instances of a pod.
+  * It can also bring up a new pod in a single pod node when the existing pod fails.
+  * It ensures the specified number of pods are always running.
 * Load Balancing and Scaling
-    * This can be used to bring up more pods on a node, or additional pods across different nodes for scaling
-    * The Replication Controller spans across multiple nodes in the cluster
-    * Replication Controller vs. ReplicaSet
-        * Replication Controller is the older technology that's being replaced by ReplicaSet
+  * This can be used to bring up more pods on a node, or additional pods across different nodes for scaling
+  * The Replication Controller spans across multiple nodes in the cluster
+  * Replication Controller vs. ReplicaSet
+    * Replication Controller is the older technology that's being replaced by ReplicaSet
 
 _rc-definition.yml:_
 
@@ -430,10 +430,10 @@ Services help us connect applications together with other applications or users
 * NodePort service can act similarly to a reverse proxy in that you can access an IP on a separate network, i.e.,
   external
   accessibility.
-    * There are 3 ports involved
-        1. Target Port: 80, the port where the webserver is running and where the service forwards the request to.
-        2. Port: 80, the port on the service itself, think host port in docker for the Service Object
-        3. NodePort: 30000-32767, The port which we use to access the service externally
+  * There are 3 ports involved
+    1. Target Port: 80, the port where the webserver is running and where the service forwards the request to.
+    2. Port: 80, the port on the service itself, think host port in docker for the Service Object
+    3. NodePort: 30000-32767, The port which we use to access the service externally
 
 ```yaml
 apiVersion: v1
@@ -1368,14 +1368,14 @@ There are 2 types of accounts in Kubernetes:
 
 * User Accounts (Admin, Developer, etc.)
 * Service Accounts (Users used by the system, applications, Prometheus, Jenkins, etc.)
-    * Service accounts use tokens to communicate between services, similar to a `curl` Bearer token.
-    * By default, there is a service account created named `default`
-    * The default account is automatically applied to all pods on the cluster
-    * The service account gets mounted as a projected volume within the pod, like a dynamic directory
-        * Located at `/var/run/secrets/kubernetes.io/serviceaccount`
-        * `kubectl exec -it my-kubernetes-dashboard ls /var/run/secrets/kubernetes.io/serviceaccount` will have files
-          with the token for that service account.
-        * This default account has limitations, so if needed we create a new ServiceAccount
+  * Service accounts use tokens to communicate between services, similar to a `curl` Bearer token.
+  * By default, there is a service account created named `default`
+  * The default account is automatically applied to all pods on the cluster
+  * The service account gets mounted as a projected volume within the pod, like a dynamic directory
+    * Located at `/var/run/secrets/kubernetes.io/serviceaccount`
+    * `kubectl exec -it my-kubernetes-dashboard ls /var/run/secrets/kubernetes.io/serviceaccount` will have files
+      with the token for that service account.
+    * This default account has limitations, so if needed we create a new ServiceAccount
 
 ```bash
 kubectl get serviceaccount
@@ -1430,22 +1430,22 @@ kubectl create token dashboard-sa --duration 2h
 
 * How to restrict which pods are placed on which nodes
 * An analogy for Taints and Tolerations w/ a person and bugs
-    * Taints would be Bugspray in this instance
-    * Tolerations would be where a bug is either tolerant or intolerant to that bugspray, i.e., it may be intolerant if
-      its
-      a mosquito but tolerant if its a ladybug
-    * In Kubernetes, the person would be a Node and the bugs would be Pods
-    * If we want only a specific set of pods on a given node:
-        * First we apply a Taint to the Node in question.
-        * Then we apply a Toleration only to the Pods which we want to live on that node. This will prevent any unwanted
-          pods on that node.
-        * i.e., Node 1 has a "blue" taint. Now we apply a "blue" toleration to pod D. This will prevent pods A-C from
-          living on Node 1.
-            * Node 1 ("blue" taint): Pod D ("blue" tolerance)
-            * Node 2: Pod A, Pod C
-            * Node 3: Pod B
-    * Taints/Tolerations do not require a pod to be on a specific node. In the example above, Pod D ("blue" tolerance)
-      could live on Node 2 or 3.
+  * Taints would be Bugspray in this instance
+  * Tolerations would be where a bug is either tolerant or intolerant to that bugspray, i.e., it may be intolerant if
+    its
+    a mosquito but tolerant if its a ladybug
+  * In Kubernetes, the person would be a Node and the bugs would be Pods
+  * If we want only a specific set of pods on a given node:
+    * First we apply a Taint to the Node in question.
+    * Then we apply a Toleration only to the Pods which we want to live on that node. This will prevent any unwanted
+      pods on that node.
+    * i.e., Node 1 has a "blue" taint. Now we apply a "blue" toleration to pod D. This will prevent pods A-C from
+      living on Node 1.
+      * Node 1 ("blue" taint): Pod D ("blue" tolerance)
+      * Node 2: Pod A, Pod C
+      * Node 3: Pod B
+  * Taints/Tolerations do not require a pod to be on a specific node. In the example above, Pod D ("blue" tolerance)
+    could live on Node 2 or 3.
 
 #### To taint a node:
 
@@ -1456,12 +1456,12 @@ kubectl taint nodes node-name key=value:taint-effect
 There are 3 Taint-Effects:
 
 * NoSchedule
-    * Pods will not be scheduled on the Node.
+  * Pods will not be scheduled on the Node.
 * PreferNoSchedule
-    * System will try to avoid placing a pod on the tainted node, but it isn't guaranteed
+  * System will try to avoid placing a pod on the tainted node, but it isn't guaranteed
 * NoExecute
-    * The system will not schedule new pods on the node, and existing pods on the node, if any, will be evicted if they
-      don't tolerate the taint.
+  * The system will not schedule new pods on the node, and existing pods on the node, if any, will be evicted if they
+    don't tolerate the taint.
 
 ### Example taint:
 
@@ -1508,8 +1508,8 @@ Output: `Taints: node-role.kubernetes.io/master:NoSchedule`
 ## Node Selectors:
 
 * Imagine 3 nodes
-    * 1 Large Node
-    * 2 Small Nodes
+  * 1 Large Node
+  * 2 Small Nodes
 * A Node Selector can be used to make a pod only work on a specific Node.
 * This could be useful to make sure a heavy workload is only being run on the large Node
 * Node Selectors have limitations, i.e., "Don't place this pod on a Small node" or "Place this pod on a Large or Medium
@@ -1540,8 +1540,8 @@ kubectl label nodes node01 size=Large
 ## Node Affinity:
 
 * The primary purpose of Node Affinity is to ensure Pods are hosted on particular Nodes.
-    * i.e., Large data-processing Pod is hosted on Node 1, assuming Node 1 is Large.
-    * Unlike Node Selectors, Node Affinity may be more specific about which Node(s) a Pod may be hosted on.
+  * i.e., Large data-processing Pod is hosted on Node 1, assuming Node 1 is Large.
+  * Unlike Node Selectors, Node Affinity may be more specific about which Node(s) a Pod may be hosted on.
 
 This Definition would be equivalent to the NodeSelector in the `pod-definition.yaml` above, however it also has more
 specificity power if needed.
@@ -1582,34 +1582,34 @@ Node Affinity Types:
 * The type of Node Affinity defines the behavior of the Scheduler with respect to Node Affinity and the stages of the
   lifecycle of the pod
 * Two types of Node Affinity:
-    * `requiredDuringSchedulingIgnoredDuringExecution`
-    * `preferredDuringSchedulingIgnoredDuringExecution`
+  * `requiredDuringSchedulingIgnoredDuringExecution`
+  * `preferredDuringSchedulingIgnoredDuringExecution`
 * There is a third planned type of Node Affinity, but it is not available:
-    * `requiredDuringSchedulingRequiredDuringExecution`
+  * `requiredDuringSchedulingRequiredDuringExecution`
 
 ## Taints and Tolerations vs. Node Affinity
 
 * We have 3 nodes and 3 pods in 3 separate colors; Red, Blue, and Green.
 * Additionally, we have other unlabeled pods and nodes
-    * Node 1: Blue (Blue Taint)
-    * Node 2: Red (Red Taint)
-    * Node 3: Green (Green Taint)
-    * Node 4: Unlabeled
-    * Node 5: Unlabeled
-    * Pod 1: Green (Green Toleration)
-    * Pod 2: Blue (Blue Toleration)
-    * Pod 3: Red (Red Toleration)
-    * Pod 4: Unlabeled
-    * Pod 5: Unlabeled
+  * Node 1: Blue (Blue Taint)
+  * Node 2: Red (Red Taint)
+  * Node 3: Green (Green Taint)
+  * Node 4: Unlabeled
+  * Node 5: Unlabeled
+  * Pod 1: Green (Green Toleration)
+  * Pod 2: Blue (Blue Toleration)
+  * Pod 3: Red (Red Toleration)
+  * Pod 4: Unlabeled
+  * Pod 5: Unlabeled
 * To solve this, we apply a taint to all colored Nodes and toleration to colored pods.
-    * Unfortunately, this does not require our tolerant pods to go to the respective Node. They can still go to
-      unlabeled nodes
+  * Unfortunately, this does not require our tolerant pods to go to the respective Node. They can still go to
+    unlabeled nodes
 * If we use NodeSelectors/Node Affinity:
-    * It will guarantee our colored pods end up on the colored nodes, however unlabeled pods could end up on our labeled
-      nodes.
+  * It will guarantee our colored pods end up on the colored nodes, however unlabeled pods could end up on our labeled
+    nodes.
 * Finally, using both Taints/Tolerations **and** Node Affinity:
-    * First, we add taints and tolerations to the colored pods to prevent other pods from ending up in the tainted nodes
-    * Next we use NodeAffinity to prevent the colored pods from ending up in the unlabeled nodes.
+  * First, we add taints and tolerations to the colored pods to prevent other pods from ending up in the tainted nodes
+  * Next we use NodeAffinity to prevent the colored pods from ending up in the unlabeled nodes.
 
 Tips and Tricks for the
 Exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
@@ -1619,9 +1619,9 @@ Exam: https://medium.com/@harioverhere/ckad-certified-kubernetes-application-dev
 * Microservices allow for decoupling of services rather than having a monolith, however at times resources may need to
   work together (i.e., Webserver and Main App) and be deployed together.
 * Multi-container pods share the following:
-    * Lifecycle
-    * Network
-    * Storage
+  * Lifecycle
+  * Network
+  * Storage
 
 #### To create a multi-container pod:
 
@@ -1645,21 +1645,21 @@ spec:
 ### Design Patterns
 
 * Co-located Containers
-    * As described above with the main-app and web-app sharing resources
-    * 2+ containers running in a pod
-    * Limitation: You cannot define which container starts first in co-located containers
+  * As described above with the main-app and web-app sharing resources
+  * 2+ containers running in a pod
+  * Limitation: You cannot define which container starts first in co-located containers
 * Regular Init Containers
-    * Used when initialization steps need to occur before the main application itself
-    * i.e., an application that waits for the database to be ready before starting the main application
-    * The init container starts its job, ends its job, and then the main application starts
-    * Once all init containers complete, the regular containers are all started simultaneously.
+  * Used when initialization steps need to occur before the main application itself
+  * i.e., an application that waits for the database to be ready before starting the main application
+  * The init container starts its job, ends its job, and then the main application starts
+  * Once all init containers complete, the regular containers are all started simultaneously.
 * Sidecar Containers
-    * Setup similar to a Regular Init container where the Sidecar starts first, followed by the main application
-    * Unlike the Init Container, the Sidecar container continues to do its job for the lifecycle of the pod
-    * The sidecar ends after the main app ends
-    * Sidecar Starts > Main App Starts > Main App Ends > Sidecar Ends
-    * Different from Co-located Containers, Sidecar containers allow the ability to set the startup order of the
-      applications
+  * Setup similar to a Regular Init container where the Sidecar starts first, followed by the main application
+  * Unlike the Init Container, the Sidecar container continues to do its job for the lifecycle of the pod
+  * The sidecar ends after the main app ends
+  * Sidecar Starts > Main App Starts > Main App Ends > Sidecar Ends
+  * Different from Co-located Containers, Sidecar containers allow the ability to set the startup order of the
+    applications
 
 `co-located-container.yaml`
 
@@ -1726,19 +1726,19 @@ spec:
 
 * The Pod Status tells us where we're at in the lifecycle of the pod.
 * Pod Conditions give us a list of true or false values describing the state of the pod
-    * PodScheduled
-    * Initialized
-    * ContainersReady
-    * Ready
+  * PodScheduled
+  * Initialized
+  * ContainersReady
+  * Ready
 * These conditions can be found in the `kubectl describe po pod-name` under Conditions
 * Kubernetes assumes that if the Ready condition on the Pod is met, it is ready to serve traffic. This may not be true,
   as some applications may take time after becoming ready to be usable, i.e., Jenkins taking ~10 seconds to be ready.
 * What we need is a way to assign the Ready State as it pertains to the applications inside the container rather than
   the pod's status.
 * There are different ways to do this, depending on the application in the pod:
-    * Web applications: HTTP Test - /api/ready
-    * Database applications: TCP Test - 3306
-    * Alternately, you can simply execute a command that would exit successfully if this applicaton is ready.
+  * Web applications: HTTP Test - /api/ready
+  * Database applications: TCP Test - 3306
+  * Alternately, you can simply execute a command that would exit successfully if this applicaton is ready.
 
 `pod-definition.yaml`
 
@@ -1888,9 +1888,9 @@ kubectl top pod
 
 * Labels are used to differentiate and group specific items
 * Examples of Labels and Values for those Labels:
-    * Color = Blue
-    * Kind = Wild
-    * Class = Mammal
+  * Color = Blue
+  * Kind = Wild
+  * Class = Mammal
 * To specify Kubernetes labels:
   `pod-definition.yaml`
 
@@ -2009,14 +2009,14 @@ kubectl rollout history deployment/myapp-development
 There are two types of deployment strategies:
 
 * Recreate Strategy
-    * First, destroy the old running instances of the application, then deploy new instances of the application
-        * Downside: This will cause downtime between the old instances being destroyed and the new instances being
-          deployed
-        * ex 1,2,3,4,5 down | 1,2,3,4,5 up
+  * First, destroy the old running instances of the application, then deploy new instances of the application
+    * Downside: This will cause downtime between the old instances being destroyed and the new instances being
+      deployed
+    * ex 1,2,3,4,5 down | 1,2,3,4,5 up
 * Rolling Update (Default deployment strategy)
-    * We take down instances one at a time and replace them with like for like
-    * Seamless update strategy without downtime
-    * ex. 1 down, 1 up, 2 down, 2 up, 3 down, 3 up, etc.
+  * We take down instances one at a time and replace them with like for like
+  * Seamless update strategy without downtime
+  * ex. 1 down, 1 up, 2 down, 2 up, 3 down, 3 up, etc.
 
 To roll back a deployment, you can use the following command:
 
@@ -2031,16 +2031,16 @@ This will follow the deployment strategy, so by default it will use a rolling do
 * These deployment strategies can't be defined as deployment strategies, but can be done other ways
 * These deployments are best implemented Service Meshes like Istio
 * Blue/Green Updates
-    * We have 2 versions of the application deployed alongside each other
-    * The old version is the Blue deployment
-    * The new version is the Green deployment
-    * All traffic is routed to the old deployment until all tests have passed on the new deployment. At that point we
-      switch all traffic to the new deploy at once.
-    * On base K8s, this can be done via Labels and Services:
-        * On the Blue deploy, set a label of v1
-        * On the Service, set a label of v1
-        * On the Green deploy, set a label of v2
-        * Once the Green deployment is finished, set the label on the Service to v2
+  * We have 2 versions of the application deployed alongside each other
+  * The old version is the Blue deployment
+  * The new version is the Green deployment
+  * All traffic is routed to the old deployment until all tests have passed on the new deployment. At that point we
+    switch all traffic to the new deploy at once.
+  * On base K8s, this can be done via Labels and Services:
+    * On the Blue deploy, set a label of v1
+    * On the Service, set a label of v1
+    * On the Green deploy, set a label of v2
+    * Once the Green deployment is finished, set the label on the Service to v2
 
 `my-app-blue.yaml`
 
@@ -2121,17 +2121,17 @@ spec:
 ```
 
 * Canary Updates
-    * In this version, we route only a small amount of traffic to the new deploy
-    * Ex, 6 deployments, 5 blue, 1 green
-    * If we don't see any errors, we swap the blue deployments over to green
-    * After finished, we remove the canary deploy
-    * To do this, we create a label for both deployments and set a selector in the Service, i.e., `app:Front-end`
-        * This will route the traffic 50% to old, 50% to new
-        * To lower the amount of traffic to the canary deployment, we reduce the number of pods in the deployment to the
-          minimum.
-    * Traffic split is always determined by the pods in the deployments, and as a ratio of that number, i.e., you need
-      100
-      pods to have control down to 1% of traffic being routed to a specific deployment.
+  * In this version, we route only a small amount of traffic to the new deploy
+  * Ex, 6 deployments, 5 blue, 1 green
+  * If we don't see any errors, we swap the blue deployments over to green
+  * After finished, we remove the canary deploy
+  * To do this, we create a label for both deployments and set a selector in the Service, i.e., `app:Front-end`
+    * This will route the traffic 50% to old, 50% to new
+    * To lower the amount of traffic to the canary deployment, we reduce the number of pods in the deployment to the
+      minimum.
+  * Traffic split is always determined by the pods in the deployments, and as a ratio of that number, i.e., you need
+    100
+    pods to have control down to 1% of traffic being routed to a specific deployment.
 
 `my-app-primary.yaml`
 
@@ -2304,38 +2304,38 @@ spec:
 ### Traffic
 
 * Two types of traffic:
-    * This is dependent on the perspective of the application
-        * Ingress - The inbound traffic from the user to the frontend application from frontend application perspective
-        * Egress - The outbound traffic from the frontend application to the rest of the stack, i.e., backend
+  * This is dependent on the perspective of the application
+    * Ingress - The inbound traffic from the user to the frontend application from frontend application perspective
+    * Egress - The outbound traffic from the frontend application to the rest of the stack, i.e., backend
 * Example:
-    * Frontend Webapp (Port 80)
-        * Ingress: User to Webapp
-        * Egress: Webapp to Backend server
-    * Backend Server (Port 5000)
-        * Ingress: Webapp to Backend server
-        * Egress: Backend server to DB
-    * Database (Port 3306)
-        * Ingress: Backend server to DB
+  * Frontend Webapp (Port 80)
+    * Ingress: User to Webapp
+    * Egress: Webapp to Backend server
+  * Backend Server (Port 5000)
+    * Ingress: Webapp to Backend server
+    * Egress: Backend server to DB
+  * Database (Port 3306)
+    * Ingress: Backend server to DB
 
 * Kubernetes defaults to an "All Allow" rule for network traffic between pods or services
 * There may be reasons to forego the all allow strategy in favor of more specificity:
-    * Security team
-    * Audits
-    * Etc.
+  * Security team
+  * Audits
+  * Etc.
 * To override this default network traffic, a Network Policy would be used.
-    * This could be used to only allow database traffic to come from the API server, rather than the frontend
-    * A Network Policy is linked to one or more pods and rules are defined about the policy
-        * i.e., only allow ingress traffic on port 3306 for the DB server
+  * This could be used to only allow database traffic to come from the API server, rather than the frontend
+  * A Network Policy is linked to one or more pods and rules are defined about the policy
+    * i.e., only allow ingress traffic on port 3306 for the DB server
 * Network policies are enforced by the network solution implemented on the Kubernetes cluster
 * Even if the network is configured with a solution that doesn't support network policies won't throw errors, it just
   won't enforce the policy.
-    * Solutions that support network policies
-        * Kube-router
-        * Calico
-        * Romana
-        * Weave Net
-    * Solutions that **DO NOT** support network policies
-        * Flannel
+  * Solutions that support network policies
+    * Kube-router
+    * Calico
+    * Romana
+    * Weave Net
+  * Solutions that **DO NOT** support network policies
+    * Flannel
 * Responses do not require an egress rule. If a DB has an ingress rule, the response can be sent back without a separate
   rule.
 
@@ -2451,9 +2451,12 @@ kubectl get netpol
 * Ingress in Kubernetes is like a layer 7 load balancer
 
 1. Deploy Ingress Controller
-    * Nginx, Traefik, etc.
+
+* Nginx, Traefik, etc.
+
 2. Config Ingress Resources
-    * K8s config file
+
+* K8s config file
 
 `nginx-ingress-controller.yaml`
 
@@ -2630,10 +2633,10 @@ There are two types of storage in Docker:
 
 * How Docker stores data on its file system
 * `/var/lib/docker`
-    * `aufs`
-    * `containers`
-    * `image`
-    * `volumes`
+  * `aufs`
+  * `containers`
+  * `image`
+  * `volumes`
 
 Docker's Layered Architecture
 
@@ -2656,26 +2659,26 @@ ENTRYPOINT exec FLASK_APP=/opt/source-code/app.py flask run
   4 and it would use Layers 1-3 from cache.
 * Editing any files in the image will be done on the Read-Write Layer as opposed to the base image, as its a Read-Only
   Layer.
-    * The read-write layer will be discarded when the container is killed.
+  * The read-write layer will be discarded when the container is killed.
 * If instead we want to persist data, we'll need to add a Persistent Volume to the Image.
 * There are two types of data mounts:
-    * Volume mount: data stored in docker's volume folder
-        * `docker run -v data_volume:/var/lib/mysql mysql`
-    * Bind mount: data stored elsewhere that's bound to docker data
-        * `docker run -v /data/mysql:/var/lib/mysql mysql`
-    * The modern way to do the mount is to use the `--mount` option to be more verbose
-        * `docker run --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql`
+  * Volume mount: data stored in docker's volume folder
+    * `docker run -v data_volume:/var/lib/mysql mysql`
+  * Bind mount: data stored elsewhere that's bound to docker data
+    * `docker run -v /data/mysql:/var/lib/mysql mysql`
+  * The modern way to do the mount is to use the `--mount` option to be more verbose
+    * `docker run --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql`
 * To store this data, docker uses Storage Drivers:
-    * AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2
-    * This is operating-system-dependent. Docker will be done automatically
+  * AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2
+  * This is operating-system-dependent. Docker will be done automatically
 
 ### Docker Volumes
 
 * The default docker volume plugin is `Local`
-    * Others include Azure File Storage, Convoy, DigitalOcean Block Storage, Flocker, gce-docker, GlusterFS, NetApp,
-      RexRay, Portworx, and VMWare vSphere Storage among others
+  * Others include Azure File Storage, Convoy, DigitalOcean Block Storage, Flocker, gce-docker, GlusterFS, NetApp,
+    RexRay, Portworx, and VMWare vSphere Storage among others
 * To use a specific volume, use the `--volume-driver` option
-    * `docker run -it --name mysql --volume-driver rexray/ebs --mount src=ebs-vol,target=/var/lib/mysql mysql`
+  * `docker run -it --name mysql --volume-driver rexray/ebs --mount src=ebs-vol,target=/var/lib/mysql mysql`
 
 ### Kubernetes Volumes
 
@@ -2789,46 +2792,48 @@ Headless Services can be created just like a `Service`, except there is a `clust
 ## Security Primitives
 
 * Secure Hosts
-    * Disable Password Authentication
-    * SSH key based auth
+  * Disable Password Authentication
+  * SSH key based auth
 * Secure Kubernetes
-    * Controlling access to the API server itself
-        * Who can access the cluster?
-            * Static Token File
-            * Certificates
-            * External Authentication providers - LDAP
-            * and for Machines: Service Accounts
-        * What can they do?
-            * RBAC Authorization
-            * ABAC Authorization
-            * Node Authorization
-            * Webhook Mode
-    * All communication on the cluster is secured by TLS Encryption
-    * Network Policies
+  * Controlling access to the API server itself
+    * Who can access the cluster?
+      * Static Token File
+      * Certificates
+      * External Authentication providers - LDAP
+      * and for Machines: Service Accounts
+    * What can they do?
+      * RBAC Authorization
+      * ABAC Authorization
+      * Node Authorization
+      * Webhook Mode
+  * All communication on the cluster is secured by TLS Encryption
+  * Network Policies
 
 ## Authentication
 
 * Types of Accounts that will be accessing the cluster
-    * Administrative Users
-        * Admins
-        * Developers
-    * End Users
-    * Service Accounts
-        * Bots
+  * Administrative Users
+    * Admins
+    * Developers
+  * End Users
+  * Service Accounts
+    * Bots
 * Kubernetes does not allow for the creation of user accounts individually, but it does allow for the creation for
   ServiceAccounts
 * Accounts
-    * All Administrative User access is managed by the API Server
-        * `kubectl`
-        * `curl https://kube-server-ip:port/`
+  * All Administrative User access is managed by the API Server
+    * `kubectl`
+    * `curl https://kube-server-ip:port/`
 
 ### Auth Mechanisms
 
 1. kube-apiserver
-    * Static Token Files
-        * Not recommended as it stores usernames, passwords, and tokens in plaintext
-    * Certificates
-    * Identity Services
+
+* Static Token Files
+  * Not recommended as it stores usernames, passwords, and tokens in plaintext
+* Certificates
+* Identity Services
+
 2. Authenticate User
 3. Process Request
 
@@ -2914,21 +2919,21 @@ kubectl get pods --kubeconfig config
 ```
 
 * KubeConfig file has 3 sections:
-    * Clusters
-        * Development
-        * Production
-        * AWS
-        * MyKubePlayground
-    * Users
-        * Admin
-        * Dev User
-        * Prod User
-        * MyKubeAdmin
-    * Contexts
-        * Admin@Production
-        * Dev User@AWS
-        * Prod User@Production
-        * MyKubeAdmin@MyKubePlayground
+  * Clusters
+    * Development
+    * Production
+    * AWS
+    * MyKubePlayground
+  * Users
+    * Admin
+    * Dev User
+    * Prod User
+    * MyKubeAdmin
+  * Contexts
+    * Admin@Production
+    * Dev User@AWS
+    * Prod User@Production
+    * MyKubeAdmin@MyKubePlayground
 
 `config-definition.yaml`
 
@@ -3060,13 +3065,13 @@ echo "<base64_encoded_value_here>" | base64 --decode
 * Alternately, if we curl the master node's address, we can get the version by doing
   `curl https://kube-master:6443/version` and pods by `curl https://kube-master:6443/api/v1/pods`
 * There are 2 primary api commands we're interested in
-    * Core `/api`
-        * `/v1`
-            * namespaces, pods, rc, events, endpoints, nodes, etc.
-    * Named `/apis`
-        * API Groups: `/apps`, `/extensions`, `/networking.k8s.io`, `/storage.k8s.io`, etc.
-        * API Resources: `/apps` -> `/v1` -> `/deployments`
-        * API Verbs: `/apps` -> `/v1` -> `/deployments` -> `[list, get, create, delete, etc.]`
+  * Core `/api`
+    * `/v1`
+      * namespaces, pods, rc, events, endpoints, nodes, etc.
+  * Named `/apis`
+    * API Groups: `/apps`, `/extensions`, `/networking.k8s.io`, `/storage.k8s.io`, etc.
+    * API Resources: `/apps` -> `/v1` -> `/deployments`
+    * API Verbs: `/apps` -> `/v1` -> `/deployments` -> `[list, get, create, delete, etc.]`
 * To access the cluster like this, you need to pass along credentials, otherwise it'll throw forbidden error on
   endpoints which require auth
 * An alternate option to access the cluster is by using a kubectl-proxy, that way you don't have to pass credentials
@@ -3077,42 +3082,42 @@ kubectl proxy
 ```
 
 * `kube-proxy` is different from `kubectl proxy`
-    * `kube-proxy` Used to enable connectivity between pods and services across nodes
-    * `kubectl proxy` HTTP proxy service used to access the cluster's API server
+  * `kube-proxy` Used to enable connectivity between pods and services across nodes
+  * `kubectl proxy` HTTP proxy service used to access the cluster's API server
 
 ## Authorization
 
 * Why Authorization?
-    * We don't necessarily want all users (including bots) to have the same access to the cluster
-    * We may not want developers to delete nodes for example, and we may only want the bots to have the minimum access
-      needed for their actions.
+  * We don't necessarily want all users (including bots) to have the same access to the cluster
+  * We may not want developers to delete nodes for example, and we may only want the bots to have the minimum access
+    needed for their actions.
 * Authorization Mechanisms
-    * Node
-        * Node Authorizer - Kubelets should be in the group system:node so any requests coming from a user with the name
-          system:node or part of the system:node group is authorized by the node authorizer
-    * ABAC
-        * Attribute-Based Access Controls
-        * Create an authorization policy that determines what a user can do on the cluster
-        * Each time you need to update the policy, you must also restart the kube api server.
-        * Difficult to manage
-    * RBAC
-        * Role-Based Access Controls
-        * Rather than associating a user or group with a specific policy, we define a role (i.e., Developer, Admin,
-          etc.)
-        * Now we update the Role rather than the Policy to update the cluster
-    * Webhook
-        * If you want an external service to handle the authorization (i.e., Open Policy Agent)
-    * AlwaysAllow [Default]
-        * Always allows all authorization requests
-        * This is the Default mode on a cluster
-    * AlwaysDeny
-        * Always denies all authorization requests
+  * Node
+    * Node Authorizer - Kubelets should be in the group system:node so any requests coming from a user with the name
+      system:node or part of the system:node group is authorized by the node authorizer
+  * ABAC
+    * Attribute-Based Access Controls
+    * Create an authorization policy that determines what a user can do on the cluster
+    * Each time you need to update the policy, you must also restart the kube api server.
+    * Difficult to manage
+  * RBAC
+    * Role-Based Access Controls
+    * Rather than associating a user or group with a specific policy, we define a role (i.e., Developer, Admin,
+      etc.)
+    * Now we update the Role rather than the Policy to update the cluster
+  * Webhook
+    * If you want an external service to handle the authorization (i.e., Open Policy Agent)
+  * AlwaysAllow [Default]
+    * Always allows all authorization requests
+    * This is the Default mode on a cluster
+  * AlwaysDeny
+    * Always denies all authorization requests
 * These authorization methods can be chained, i.e., Node -> RBAC -> Webhook
-    * These are and ordered list, so it would authorize via Node first, then RBAC, then Webhook requests.
-    * Once a user has been authorized by one of the methods, the other methods are skipped.
-        * if Node works, RBAC and Webhook are ignored
-        * if Node and RBAC fail authorization, but Webhook succeeds, the request will be successful
-    * ex: `--authorization-mode=Node,RBAC,Webhook`
+  * These are and ordered list, so it would authorize via Node first, then RBAC, then Webhook requests.
+  * Once a user has been authorized by one of the methods, the other methods are skipped.
+    * if Node works, RBAC and Webhook are ignored
+    * if Node and RBAC fail authorization, but Webhook succeeds, the request will be successful
+  * ex: `--authorization-mode=Node,RBAC,Webhook`
 
 ## Role-Based Access Controls
 
@@ -3212,13 +3217,13 @@ rules:
 
 * Rather than namespaced roles, the Cluster Roles will be valid for the whole cluster
 * Examples of Cluster-Scoped Resources:
-    * nodes
-    * persistentvolumes
-    * clusterroles
-    * clusterrolebindings
-    * certificatesigningrequests
-    * namespaces
-    * And more...
+  * nodes
+  * persistentvolumes
+  * clusterroles
+  * clusterrolebindings
+  * certificatesigningrequests
+  * namespaces
+  * And more...
 
 To see the namespaced vs. non-namespaced resources:
 
@@ -3264,14 +3269,14 @@ resources
 ## Admission Controllers
 
 * If you want to create Authorization with more specificity than a typical RBAC, you would use an Admission Controller
-    * ex, "Only permit images from a specific registry", "do not permit runAs root user", "Only permit certain
-      capabilities", "Pod must always have labels"
-    * By default, the following Admission Controllers are available:
-        * AlwaysPullImages
-        * DefaultStorageClass
-        * EventRateLimit
-        * NamespaceExists
-        * Many more...
+  * ex, "Only permit images from a specific registry", "do not permit runAs root user", "Only permit certain
+    capabilities", "Pod must always have labels"
+  * By default, the following Admission Controllers are available:
+    * AlwaysPullImages
+    * DefaultStorageClass
+    * EventRateLimit
+    * NamespaceExists
+    * Many more...
 * Example using the `NamespaceExists [Default]` Admission Controller:
 
 ```bash
@@ -3327,27 +3332,26 @@ default     Active  55m
 ## Validating and Mutating Admission Controllers
 
 * The `NamespaceExists` is an example of a Validation Admission Controller
-    * It validates that a namespace exists when creating a resource which uses it.
+  * It validates that a namespace exists when creating a resource which uses it.
 * The `DefaultStorageClass` in an example of a Mutating Admission Controller
-    * It mutates the PVC to use the default storage class.
+  * It mutates the PVC to use the default storage class.
 * Generally, mutating AC's are invoked before validation ACs so any change made by the mutating AC can be validated by
   the validation AC.
-    * Example: `NamespaceAutoProvision` and `NamespaceExists`
-        * The `NamespaceAutoProvision` runs first, and then after the namespace has been created, the `NamespaceExists`
-          runs.
-        * If it were backwards, the `NamespaceExists` AC would always reject the resource before it could create the
-          resource's new namespace.
+  * Example: `NamespaceAutoProvision` and `NamespaceExists`
+    * The `NamespaceAutoProvision` runs first, and then after the namespace has been created, the `NamespaceExists`
+      runs.
+    * If it were backwards, the `NamespaceExists` AC would always reject the resource before it could create the
+      resource's new namespace.
 * If any validating AC fails validation, it will output an error to the user and fail to create the resource(s).
 * If we want to create our own custom Admission Controllers, there are two that we can use:
-    * MutatingAdmissionWebhook
-    * ValidatingAdmissionWebhook
+  * MutatingAdmissionWebhook
+  * ValidatingAdmissionWebhook
 * How do we set a custom Admission Controller up?
-    * First, we deploy our Admission Webhook Server
-        * The Admission Webhook server is a server you deploy with the logic or code to permit or reject a request
-        * It must be able to receive and respond with the appropriate responses that the Webhook expects
-        * If deployed in the cluster, it will need a service, i.e., `webhook-service`
-    * Second, we configure the webhook on Kubernetes by creating a Webhook Configuration Object
-
+  * First, we deploy our Admission Webhook Server
+    * The Admission Webhook server is a server you deploy with the logic or code to permit or reject a request
+    * It must be able to receive and respond with the appropriate responses that the Webhook expects
+    * If deployed in the cluster, it will need a service, i.e., `webhook-service`
+  * Second, we configure the webhook on Kubernetes by creating a Webhook Configuration Object
 
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1
@@ -3367,66 +3371,68 @@ webhooks:
         operations: [ "CREATE" ]
         resources: [ "pods" ]
         scope: "Namespaced"
+    admissionReviewVersions: [ "v1" ]
+    sideEffects: None
 ```
 
 ## API Versions
 
 * When an API group is on the `/v1` version, that means it's on the GA (Generally Available) Stable Version.
 * Alternatives to `/v1` are:
-    * `/v1alpha`: Alpha
-        * Version Name: `vXalphaY` (eg: v1alpha1)
-        * Enabled: No - Can enable via flags
-        * Tests: May lack e2e tests
-        * Reliability: May have bugs
-        * Support: No commitment; may be dropped later
-        * Audience: Expert Users interesting in giving early feedback
-    * `/v1beta`: Beta
-        * Version Name: `vXbetaY` (eg: v1beta1)
-        * Enabled: Yes, by default
-        * Tests: Has e2e tests
-        * Reliability: May have minor bugs
-        * Support: Commits to complete the feature and move to GA
-        * Audience: Users interested in beta testing and providing feedback
-    * `/v1`: GA (Stable)
-        * Version Name: `vX` (eg: v1)
-        * Enabled: Yes, by default
-        * Tests: Has conformance tests
-        * Reliability: Highly reliable
-        * Support: Will be present in many future releases
-        * Audience: All users
+  * `/v1alpha`: Alpha
+    * Version Name: `vXalphaY` (eg: v1alpha1)
+    * Enabled: No - Can enable via flags
+    * Tests: May lack e2e tests
+    * Reliability: May have bugs
+    * Support: No commitment; may be dropped later
+    * Audience: Expert Users interesting in giving early feedback
+  * `/v1beta`: Beta
+    * Version Name: `vXbetaY` (eg: v1beta1)
+    * Enabled: Yes, by default
+    * Tests: Has e2e tests
+    * Reliability: May have minor bugs
+    * Support: Commits to complete the feature and move to GA
+    * Audience: Users interested in beta testing and providing feedback
+  * `/v1`: GA (Stable)
+    * Version Name: `vX` (eg: v1)
+    * Enabled: Yes, by default
+    * Tests: Has conformance tests
+    * Reliability: Highly reliable
+    * Support: Will be present in many future releases
+    * Audience: All users
 * API groups can support multiple API versions at the same time:
-    * `/api/apps/` can support `/v1alpha1`, `v1beta1`, and `v1` for example
+  * `/api/apps/` can support `/v1alpha1`, `v1beta1`, and `v1` for example
 * Although they can be available, there is only one Preferred or Storage version
-    * This is the default api group used when using the api to make updates
-        * i.e., `kubectl get deployment` will use the `v1` command as it's the preferred version.
-    * The Storage version is the version which an object is stored in etcd, respective to the version used in the yaml
-      file to create it.
-    * Preferred and Storage versions can be different, although that's not typical.
+  * This is the default api group used when using the api to make updates
+    * i.e., `kubectl get deployment` will use the `v1` command as it's the preferred version.
+  * The Storage version is the version which an object is stored in etcd, respective to the version used in the yaml
+    file to create it.
+  * Preferred and Storage versions can be different, although that's not typical.
 
 ## API Deprecations
 
 * API Deprecation Policy Rule #1
-    * API elements may only be removed by incrementing the version of the API group.
-        * For example, if a resource is in `/v1alpha1/webinar`, to remove it, you'd need to upgrade the API group to
-          `/v1alpha2/`
+  * API elements may only be removed by incrementing the version of the API group.
+    * For example, if a resource is in `/v1alpha1/webinar`, to remove it, you'd need to upgrade the API group to
+      `/v1alpha2/`
 * API Deprecation Policy Rule #2
-    * API objects must be able to round-trip between API versions in a given release without information loss, except
-      the whole REST resources that do not exist in some versions.
-        * If a field is added to a spec between `v1alpha1/course` for duration and `v1alpha2/course`, it must be
-          backfilled to exist in `v1alpha1`
+  * API objects must be able to round-trip between API versions in a given release without information loss, except
+    the whole REST resources that do not exist in some versions.
+    * If a field is added to a spec between `v1alpha1/course` for duration and `v1alpha2/course`, it must be
+      backfilled to exist in `v1alpha1`
 * API Deprecation Policy Rule #3
-    * An API version in a given track may not be deprecated until a new API version at least as stable is released.
-        * This means that if a `v2alpha1` version is created, it cannot deprecate a `v1` release. It must be a `v2`
-          version that can deprecate `v1`
+  * An API version in a given track may not be deprecated until a new API version at least as stable is released.
+    * This means that if a `v2alpha1` version is created, it cannot deprecate a `v1` release. It must be a `v2`
+      version that can deprecate `v1`
 * API Deprecation Policy Rule #4a
-    * Other than the most recent API versions in each track, older API versions must be supported after their announced
-      deprecation for a duration of no less than:
-        * GA: 12 months or 3 releases (whichever is longer)
-        * Beta: 9 months or 3 releases (whichever is longer)
-        * Alpha: 0 releases
+  * Other than the most recent API versions in each track, older API versions must be supported after their announced
+    deprecation for a duration of no less than:
+    * GA: 12 months or 3 releases (whichever is longer)
+    * Beta: 9 months or 3 releases (whichever is longer)
+    * Alpha: 0 releases
 * API Deprecation Policy Rule #4b
-    * The "preferred" API version and the "storage version" for a given group may not advance until after the release
-      has been made that supports both the new version and the previous version.
+  * The "preferred" API version and the "storage version" for a given group may not advance until after the release
+    has been made that supports both the new version and the previous version.
 
 ### Kubectl convert
 
@@ -3514,7 +3520,7 @@ kubectl create -f flightticket.yaml
 * An operator framework can be used to deploy the Custom CRD and Custom Controller at the same time.
 * The `etcd` operator is an operator used to manage an `etcd` cluster
 * Operators are available at `OperatorHub.io`
-    * Examples are etcd, Grafana, Prometheus, etc.
+  * Examples are etcd, Grafana, Prometheus, etc.
 
 # Helm Fundamentals
 
@@ -3549,7 +3555,8 @@ cat /etc/*release*
 
 ## Helm Concepts
 
-Instead of storing values which may change in the individual yaml files, i.e., `deployment.yaml`, `secrets.yaml`, `pvc.yaml`, we use Helm values and templates as follows:
+Instead of storing values which may change in the individual yaml files, i.e., `deployment.yaml`, `secrets.yaml`,
+`pvc.yaml`, we use Helm values and templates as follows:
 
 * We replace the values with a variable, `{{ .Values.<variable-name> }}`, for example `{{ .Values.storage }}`
 * To access the values in the variable, we create a yaml file that stores these values.
@@ -3565,9 +3572,9 @@ passwordEncoded: ASDasdfaSDF==
 Together, the Template and the Values yaml files form a **Helm Chart**
 
 * Helm Chart Contents
-    * Templates
-    * values.yaml
-    * Chart.yaml
+  * Templates
+  * values.yaml
+  * Chart.yaml
 
 `chart.yaml`
 
@@ -3622,3 +3629,819 @@ helm pull --untar bitnami/wordpress
 ls wordpress
 helm install release-4 ./wordpress
 ```
+
+# Kustomize Problem Statement & Ideology
+
+* If we want separate nginx configurations on a per-environment basis (i.e., 1 replica in dev, 3 replicas in prod, etc.)
+  we need to create a folder structure for each environment.
+  * [folder] dev
+    * nginx-depl.yaml
+  * [folder] staging
+    * nginx-depl.yaml
+  * [folder] prod
+    * nginx-depl.yaml
+
+```bash
+kubectl apply -f dev/
+kubectl apply -f staging/
+kubectl apply -f prod/
+```
+
+* Part of the problem with this behavior is if we want to add a `service.yaml` to our application, we have to add it to
+  each environment's folder. Better put, it makes scaling difficult.
+* Kustomize provides a solution by using 2 config files
+  * `base-config.yaml`
+    * Everything that is the same across environments, for example the image used for the application.
+  * `overlay-config.yaml`
+    * Anything that differs between environments, for example the number of replicas to deploy for an application.
+
+`base.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: nginx
+  template:
+    metadata:
+      labels:
+        component: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+
+`overlays/dev.yaml`
+
+```yaml
+spec:
+  replicas: 1
+```
+
+`overlays/staging.yaml`
+
+```yaml
+spec:
+  replicas: 2
+```
+
+`overlays/prod.yaml`
+
+```yaml
+spec:
+  replicas: 5
+```
+
+* When using Kustomize, the directory structure is like:
+
+```
+  |_ k8s/
+    |_ base/ # Share or default configs across all environments
+      |_ kustomization.yaml
+      |_ nginx-depl.yaml
+      |_ service.yaml
+      |_ redis-depl.yaml
+    |_ overlays/ # Environment specific configurations that add or modify base configs
+      |_ dev/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+      |_ staging/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+      |_ prod/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+```
+
+* Kustomize then takes the base configs, adds the overlay configs on a per-env basis, and returns a final manifest
+* Kustomize comes built-in with kubectl (Although you may still want to install it as its not always the latest version)
+* Does not require learning how to use and complex & hard to read templating system (like Helm)
+* Every artifact that Kustomize uses is plain YAML and can be validated and processed as such
+
+## Kustomize vs. Helm
+
+* Helm uses a go template syntax (see above for more examples) `{{ .Values.replicaCount }}`, `{{ .Chart.name }}`, etc.
+  * These values can be used for strings + variables:
+    * `image: "nginx:{{ .Values.image.tag }}` would output `image: "nginx:2.4.4"` for example
+
+Helm structure is:
+
+```
+|_ k8s/
+  |_ environments/
+    |_ values.dev.yaml
+    |_ values.staging.yaml
+    |_ values.prod.yaml
+  |_ templates/
+    |_ nginx-deployment.yaml
+    |_ nginx-service.yaml
+    |_ db-deployment.yaml
+    |_ db-service.yaml
+```
+
+* Helm is more than just a tool to customize configs on a per-environment basis. Helm is also a package manager for the
+  application
+* Helm provides extra features like conditionals, loops, functions, and hooks.
+* Helm templates are not valid YAML as they use templating syntax
+  * Complex templates can be difficult to read
+
+## Installing and setting up Kustomize
+
+* `curl -s "url_to_kustomize/install_kustomize.sh" | bash`
+* To validate whether Kustomize has been installed:
+  * `kustomize version --short`
+
+## The kustomization.yaml File
+
+* Kustomize looks for a kustomization file which contains:
+  * List of all the Kubernetes manifests kustomize should manage
+  * All of the customizations that should be applied
+* The `kustomize build` command combines all the manifests and applies the defined transformations.
+* The `kustomize build` command does not apply/deploy the Kubernetes resource to a cluster.
+  * The output needs to be redirected to the `kubectl apply` command to deploy the resource(s) to a cluster.
+
+`kustomize.yaml`
+
+```yaml
+# Kubernetes resources to be managed by kustomize:
+resources:
+  - nginx-deployment.yaml
+  - nginx-service.yaml
+
+# Customizations that need to be made:
+commonLabels:
+  company: Kodekloud
+```
+
+* After creating the `kustomize.yaml` file, you can run the build command:
+  * `kustomize build k8s/`
+
+## Kustomize Output
+
+* To apply the output of the `kustomize build` command, you can run the following:
+  * `kustomize build k8s/ | kubectl apply -f -`
+* Alternately, you can use the `-k` command in apply
+  * `kubectl apply -k k8s/`
+* To delete, the commands are similar:
+  * `kustomize build k8s/ | kubectl delete -f -`
+  * `kubectl delete -k k8s/`
+
+## Kustomize apiVersion and Kind
+
+* You can set the `apiVersion` and `kind` attributes on a `kustomize.yaml`. They are optional but recommended.
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# The rest of the YAML file omitted
+```
+
+## Managing Directories
+
+Example Directory Structure:
+
+```
+|_ k8s/
+  |_ api/
+    |_ api-depl.yaml
+    |_ api-service.yaml
+  |_ db/
+    |_ db-depl.yaml
+    |_ db-service.yaml
+```
+
+* In base kubectl, you need to `kubectl apply -f` on each directory individually
+  * `kubectl apply -f k8s/api/`
+  * `kubectl apply -f k8s/db/`
+* Instead, in kustomize, we can create a `kustomization.yaml` in the k8s directory with a list of all resources
+
+* Example Directory Structure:
+
+```
+|_ k8s/
+  |_ kustomization.yaml
+  |_ api/
+    |_ api-depl.yaml
+    |_ api-service.yaml
+  |_ db/
+    |_ db-depl.yaml
+    |_ db-service.yaml
+```
+
+`kustomization.yaml`
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - api/api-depl.yaml
+  - api/api-service.yaml
+  - db/db-depl.yaml
+  - db/db-service.yaml
+```
+
+* Now we can run a simple command and get all the resources:
+  * `kustomize build -f k8s/ | kubectl apply -k -`
+  * `kubectl apply -k k8s/`
+* Another alternative is setting up a `kustomization.yaml` file in each subdirectory with the resources listed for that
+  directory
+  * then in the `kustomization.yaml` in the base-directory, we create a resources list of the directories
+
+`k8s/kustomization.yaml`
+
+```yaml
+resources:
+  - api/
+  - db/
+  - cache/
+  - kafka/
+```
+
+## Common Transformers
+
+* Common transformations allow us to quickly make changes across the entire cluster
+
+### commonLabel - adds a label to all Kubernetes resources
+
+`commonLabel-kustomization.yaml`
+
+```yaml
+commonLabels:
+  org: KodeKloud
+```
+
+### namePrefix/Suffix - adds a common prefix-suffix to all resource names
+
+`nameSuffix-kustomization.yaml`
+
+```yaml
+namePrefix: KodeKloud-
+nameSuffix: -dev
+```
+
+### Namespace - adds a common namespace to all resources
+
+`namespace-kustomization.yaml`
+
+```yaml
+namespace: lab
+```
+
+### commonAnnotations - adds an annotation to all resources
+
+`commonAnnotations-kustomization.yaml`
+
+```yaml
+commonAnnotations:
+  branch: master
+```
+
+## Image Transformers
+
+* An Image Transformer allows us to modify the image for a specific deployment through kustomize
+
+```yaml
+images:
+  # This will change the image value of a deployment rather than the name of the image deployed, i.e., `name: webapp` wouldn't change but `image: nginx` would.
+  - name: nginx
+    newName: haproxy
+```
+
+```yaml
+# This will change the final deployment from `image: nginx` to `image: nginx:2.4`
+images:
+  - name: nginx
+    newTag: 2.4
+```
+
+```yaml
+# Combined, it looks like this to change the deployment from `image: nginx` to `image: haproxy:2.4`
+images:
+  - name: nginx
+    newName: haproxy
+    newTag: 2.4
+```
+
+## Transformers Demo
+
+* The kustomize transformers only apply transformations to the resources in the current folder and child-folders.
+
+## Patches Intro
+
+* Kustomize patches provide another method of modifying Kubernetes configs
+* Unlike common transformers, patches provide a more "surgical" approach to targeting one or more specific sections in a
+  Kubernetes resource
+* To create a patch, 3 parameters must be provided:
+  * Operation Type: add/remove/replace
+  * Target: What resource should this patch be applied on
+    * Kind
+    * Version/Group
+    * Name
+    * Namespace
+    * labelSelector
+    * AnnotationSelector
+  * Value: What is the value that will either be replaced or added with (only need for add/replace operations)
+* There are two types of patches:
+  * JSON 6902 Patch
+    * Examples #1 and #2 show the JSON 6902 patches, where you target a specific set of values and patch them via an
+      operation
+  * Strategic Merge Patch
+    * Example #3, input the value in a YAML format and it will update the key-value pairs based on the values provided
+      in the patch.
+    * You need to provide 2 things: A way to tell kustomize which object to update and the specific property you want to
+      change
+      * In example 3, we retrieve the object via `metadata.name` and change `spec.replicas` to 5.
+
+### Example #1:
+
+```yaml
+# example deploy YAML file where we want to change the name from `api-deployment` to `web-deployment`
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment # We want to change this value from `api-deployment` to `web-deployment`
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: web-deployment
+```
+
+### Example #2:
+
+```yaml
+# example deploy YAML file where we want to change the replicas amount from 1 to 2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1 # we want to change the replicas amount from 1 to 2
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+```
+
+### Example #3:
+
+```yaml
+# kustomization.yaml
+# Strategic Merge Patch
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: api-deployment
+      spec:
+        replicas: 2
+```
+
+## Different Types of Patches
+
+* Inline
+  * The examples provided in the previous section
+* Separate File
+  * Example #4 below: Create a separate file for the patch with the changed values
+  * Separate file patches accept both JSON 6902 and Strategic Merge Patches
+
+### Example #4, Separate File Patch (JSON 6902):
+
+```yaml
+# kustomization.yaml
+# Separate File Patch
+patches:
+  - path: replica-patch.yaml
+    target:
+      kind: Deployment
+      name: nginx-deployment
+```
+
+```yaml
+# replica-patch.yaml
+- op: replace
+  path: /spec/replicas
+  value: 2
+```
+
+### Example #5, Separate File Patch (Strategic Merge Patch):
+
+```yaml
+# kustomization.yaml
+# Separate File Patch
+patches:
+  - path: replica-patch.yaml
+```
+
+```yaml
+# nonk8s
+# replica-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 2
+```
+
+## Patches Dictionary
+
+* If we want to add a key/value to our deployment.yaml, we can do the following:
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: add
+        path: /metadata/new-key
+        value: new-value
+```
+
+* If we want to remove a key/value from our deployment.yaml, we can do the following:
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: remove
+        path: /metadata/new-key
+```
+
+or:
+
+```yaml
+# nonk8s
+# replica-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  new-key: null
+```
+
+## Patches List
+
+* Now we want to replace the values in a list. In this example we'll replace the first container `nginx` with `haproxy`
+
+```yaml
+# example deploy YAML file where we want to change the replicas amount from 1 to 2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1 # we want to change the replicas amount from 1 to 2
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0 # This is the index of the item in the list, so this will grab the first container
+        value:
+          name: haproxy
+          image: haproxy
+```
+
+```yaml
+#nonk8s
+# example update container image from nginx to haproxy in Strategic Merge Patch, separate file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: nginx
+          image: haproxy
+```
+
+Now we want to add a new container to the deploy:
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/- # The `-` signifies a new container will be appended to the end of the list. (You could also use an index)
+        value:
+          name: haproxy
+          image: haproxy
+```
+
+```yaml
+#nonk8s
+# This example adds container haproxy in Strategic Merge Patch, separate file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: haproxy
+          image: haproxy
+```
+
+Now we want to remove a container from the list:
+
+```yaml
+# kustomization.yaml
+# The `|-` is used to make an inline patch
+patches:
+  - target:
+      kind: Deployment
+      name: api-deployment
+    patch: |-
+      - op: remove
+        path: /spec/template/spec/containers/1 # Here, we're removing the container at index 1
+```
+
+```yaml
+#nonk8s
+# This example removes container haproxy in Strategic Merge Patch, separate file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - $patch: delete # Here, we're deleting the container with the name haproxy from our containers list via patch.
+          name: haproxy
+```
+
+## Overlays
+
+```
+  |_ k8s/
+    |_ base/ # Share or default configs across all environments
+      |_ kustomization.yaml
+      |_ nginx-depl.yaml
+      |_ service.yaml
+      |_ redis-depl.yaml
+    |_ overlays/ # Environment specific configurations that add or modify base configs
+      |_ dev/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+      |_ staging/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+      |_ prod/
+        |_ kustomization.yaml
+        |_ config-map.yaml
+```
+
+```yaml
+# k8s/base/kustomization.yaml
+resources:
+  - nginx-depl.yaml
+  - service.yaml
+  - redis-depl.yaml
+```
+
+```yaml
+# nonk8s
+# k8s/base/nginx-depl.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+```
+
+```yaml
+# k8s/overlays/dev/kustomization.yaml
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
+  - ../../base # relative path to the `kustomization.yaml` in the base directory
+patch: |-
+  - op: replace
+    path: /spec/replicas
+    value: 2
+```
+
+```yaml
+# k8s/overlays/prod/kustomization.yaml
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
+  - ../../base # relative path to the `kustomization.yaml` in the base directory
+patch: |-
+  - op: replace
+    path: /spec/replicas
+    value: 3
+```
+
+* In addition to creating overlays in the environment-based folders, you can also create new deployments, or whatever
+  you like that you don't have in your base folder. For example, you could have a `grafana-depl.yaml` in prod only and
+  as long as its a resource in the `kustomization.yaml` file, it will be created.
+
+```yaml
+# k8s/overlays/prod/kustomization.yaml
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
+  - ../../base # relative path to the `kustomization.yaml` in the base directory
+resources:
+  - grafana-depl.yaml
+patch: |-
+  - op: replace
+    path: /spec/replicas
+    value: 3
+```
+
+## Components
+
+* Components provide the ability to define reusable pieces of configuration logic (resources + patches) that can be
+  included in multiple overlays
+* Components are useful in situations where applications support multiple optional features that need to be enabled only
+  in a subset of overlays
+* Let's assume we have 3 Environments with per-environment features, but there is overlap and we don't want to update
+  the configs in each folder
+  * Dev
+    * External DB
+  * Premium
+    * Caching
+    * External DB
+  * Self-Hosted
+    * Caching
+* We can create a new folder called Components
+
+```
+  |_ k8s/
+    |_ base/ # Share or default configs across all environments
+      |_ kustomization.yaml
+      |_ api-depl.yaml
+    |_ components/ # Components directory for shared features across environments
+      |_ caching/
+        |_ kustomization.yaml
+        |_ deployment-patch.yaml
+        |_ redis-depl.yaml
+      |_ db
+        |_ kustomization.yaml
+        |_ deployment-patch.yaml
+        |_ postgres-depl.yaml
+    |_ overlays/ # Environment specific configurations that add or modify base configs 
+      |_ dev/
+        |_ kustomization.yaml
+      |_ premium/
+        |_ kustomization.yaml
+      |_ standalone/
+        |_ kustomization.yaml
+```
+
+Once we have components, we can add a one-line flag that will pick up the appropriate components on the environments
+
+```yaml
+#nonk8s
+# components/db/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - postgres-depl.yaml
+
+secretGenerator:
+  - name: postgres-cred
+    literals:
+      - password=postgres123
+
+patches:
+  - deployment-patch.yaml
+```
+
+```yaml
+# overlays/premium/kustomization.yaml
+bases: # The `bases field in `customization.yaml` has been deprecated in favor of `resources` in v2.1.0
+  - ../../base
+
+components:
+  - ../../components/db
+```
+
+## Challenges:
+
+https://learn.kodekloud.com/user/courses/kubernetes-challenges
+
+## Kubernetes Update and Project Videos
+
+[Kubernetes Update 1.27: Chill Vibes Edition - Exploring the Latest Enhancements](https://www.youtube.com/watch?v=rUFgZuIp1mY)
+
+[Kubernetes Update 1.28: Planternetes Edition - Exploring the Latest Enhancements](https://www.youtube.com/watch?v=mRlBtYc-HSk)
+
+[Exploring Kubernetes 1.29 Updates - Mandala Universe](https://www.youtube.com/watch?v=yCkQgKVwSVU)
+
+[Kubernetes 1.30 (April 2024) – Official Release Notes and Updates](https://kubernetes.io/docs/setup/release/notes/)
+
+[Kubernetes 1.31 (August 2024) – Official Release Notes and Updates](https://kubernetes.io/docs/setup/release/notes/)
+**Kubernetes Project Videos:**
+
+Special Interest Groups (SIGs) in Kubernetes
+[Kubernetes SIGs: What They Are and How They Work](https://www.youtube.com/watch?v=EoKuPoFXY-k&t=2s)
+
+Kubernetes Enhancement Proposals (KEPs) Unveiled
+[What are Kubernetes Enhancement Proposals (KEPs)?](https://www.youtube.com/watch?v=B810TDzTQsQ)
+
+## Time Management
+
+* Duration of CKAD: 2 Hours
+  * 19 Questions
+* Don't get stuck on difficult questions; move on and come back later.
+* If you get an error message you don't understand, skip the question and come back to it
+
+
+1. Attempt All Questions
+2. Don't Get Stuck
+3. Get good with YAML files - As long as the structure of the file is correct, it doesn't matter what the file looks
+   like. Don't be overly concerned with indentation, as long as it's correctly indented.
+4. Use Shortcuts/Aliases:
+
+#### Resource Name Shortcuts
+
+* po - Pods
+* rs - ReplicaSets
+* deploy - Deployments
+* svc - Services
+* ns - Namespaces
+* netpol - NetworkPolicies
+* pv - PersistentVolumes
+* pvc - PersistentVolumeClaims
+* sa - ServiceAccounts
