@@ -4445,3 +4445,6 @@ Kubernetes Enhancement Proposals (KEPs) Unveiled
 * pv - PersistentVolumes
 * pvc - PersistentVolumeClaims
 * sa - ServiceAccounts
+
+* When using a command, they should look like the following:
+  * `command: ["sh", "-c", "<bash_command_here>"]`
